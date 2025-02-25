@@ -1,0 +1,92 @@
+" Set leader key
+let mapleader = " "
+
+" Enable line numbers
+set number
+set relativenumber
+
+" Set indentation options
+set expandtab
+set shiftwidth=4
+set tabstop=4
+
+" Enable mouse support
+set mouse=a
+
+" Enable syntax highlighting
+syntax on
+
+" Configure clipboard to use system clipboard
+set clipboard=unnamedplus
+
+" Set colorscheme
+syntax enable
+set background=dark
+colorscheme desert
+"colorscheme gruvbox
+
+" Key mappings
+nnoremap <leader>e :Ex<CR>
+nnoremap <leader>w :w<CR>
+nnoremap <leader>q :q<CR>
+nnoremap <leader>r :redo<CR>
+nnoremap <leader>sh :term<CR>
+" Enable LSP automatically
+let g:lsp_auto_enable = 1
+
+" Keybindings for LSP
+nnoremap gd :LspDefinition<CR> 
+nnoremap gr :LspReferences<CR> 
+nnoremap K :LspHover<CR>  
+nnoremap gi :LspImplementation<CR> 
+nnoremap <leader>rn :LspRename<CR> 
+nnoremap <leader>f :LspDocumentFormat<CR> 
+
+" Enable completion
+autocmd FileType c,cpp,python setlocal omnifunc=lsp#complete
+
+" Show autocomplete menu as you type
+set completeopt=menuone,noinsert,noselect
+" Use Tab to navigate completion menu
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+
+" vim-plug 
+call plug#begin('~/.vim/plugged')
+
+" Install vim-lsp (LSP client)
+Plug 'prabirshrestha/vim-lsp'
+
+" Plugin for automatic LSP server setup
+Plug 'mattn/vim-lsp-settings'
+
+" git management
+Plug 'tpope/vim-fugitive'
+
+" file tree (nerdtree)
+Plug 'preservim/nerdtree'
+
+"syntax highlighting
+Plug 'morhetz/gruvbox'
+Plug 'sheerun/vim-polyglot'
+
+"snippets
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+
+call plug#end()
+
+" Find files using FZF
+nnoremap <leader>f :Files<CR>
+
+" Search for text inside files
+nnoremap <leader>g :Rg<CR>
+
+" nerd tree toggle
+nnoremap <leader>n :NERDTreeToggle<CR>
+
+" Code snippets
+let g:UltiSnipsExpandTrigger="<Tab>"
+
+"Syntax highlight
+syntax on
