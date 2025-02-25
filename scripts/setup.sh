@@ -16,7 +16,7 @@ ln -sfv "$REPO_ROOT/configs/vimrc" ~/.vimrc
 
 # Install dependencies
 sudo apt update
-sudo apt install -y zsh git vim build-essential python3 python3-pip nodejs npm ripgrep
+sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep
 
 # Install oh-my-zsh
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
@@ -45,7 +45,6 @@ vim -es -u ~/.vimrc -i NONE -c "PlugInstall" -c "qa"
 
 # Install LSP servers
 pip3 install --user python-lsp-server
-npm install -g typescript typescript-language-server
 
 # Set default shell to zsh
 if [ "$SHELL" != "$(which zsh)" ]; then
