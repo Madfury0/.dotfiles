@@ -88,5 +88,3 @@ nnoremap <leader>n :NERDTreeToggle<CR>
 " Code snippets
 let g:UltiSnipsExpandTrigger="<Tab>"
 
-"Syntax highlight
-syntax on
