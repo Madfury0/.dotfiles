@@ -6,7 +6,7 @@ Personal configuration files for Linux development environment.
 
 - Zsh with oh-my-zsh and powerlevel10k
 - Vim with LSP support
-- Python/JS development setup
+- Python and C/C++
 - FZF fuzzy finding
 
 ## Installation
