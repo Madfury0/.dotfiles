@@ -16,7 +16,9 @@ ln -sfv "$REPO_ROOT/configs/vimrc" ~/.vimrc
 
 # Install dependencies
 sudo apt update
-sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep
+sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format
+
+pip install black autopep8
 
 # Install oh-my-zsh
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
