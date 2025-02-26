@@ -7,49 +7,29 @@ set relativenumber
 
 " Set indentation options
 set expandtab
-set shiftwidth=4
+se shiftwidth=4
 set tabstop=4
 
-" Enable mouse support
-set mouse=a
-
-" Enable syntax highlighting
+"syntax highlighting
 syntax on
+
+" Enable mouse support and hover delay
+set mouse=a
+set updatetime=300
+
+" Show matching brackets
+set showmatch
+set matchtime=2
+
+" Highlight yanked text briefly
+augroup YankHighlight
+    autocmd!
+    autocmd TextYankPost * silent! execute 'match IncSearch /\%'.line("'<").'l\%'.col("'<").'c/'
+    autocmd CursorMoved,InsertEnter * silent! match none
+augroup END
 
 " Configure clipboard to use system clipboard
 set clipboard=unnamedplus
-
-" Set colorscheme
-syntax enable
-set background=dark
-colorscheme desert
-"colorscheme gruvbox
-
-" Key mappings
-nnoremap <leader>e :Ex<CR>
-nnoremap <leader>w :w<CR>
-nnoremap <leader>q :q<CR>
-nnoremap <leader>r :redo<CR>
-nnoremap <leader>sh :term<CR>
-" Enable LSP automatically
-let g:lsp_auto_enable = 1
-
-" Keybindings for LSP
-nnoremap gd :LspDefinition<CR> 
-nnoremap gr :LspReferences<CR> 
-nnoremap K :LspHover<CR>  
-nnoremap gi :LspImplementation<CR> 
-nnoremap <leader>rn :LspRename<CR> 
-nnoremap <leader>f :LspDocumentFormat<CR> 
-
-" Enable completion
-autocmd FileType c,cpp,python setlocal omnifunc=lsp#complete
-
-" Show autocomplete menu as you type
-set completeopt=menuone,noinsert,noselect
-" Use Tab to navigate completion menu
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
 " vim-plug 
 call plug#begin('~/.vim/plugged')
@@ -74,10 +54,52 @@ Plug 'sheerun/vim-polyglot'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 
+"Fuzzy Find
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
+
+" Comments 
+Plug 'tpope/vim-commentary'
+
+"Undo tree
+Plug 'mbbill/undotree'
+
 call plug#end()
 
+" Key mappings
+nnoremap <leader>e :Ex<CR>
+nnoremap <leader>w :w<CR>
+nnoremap <leader>q :q<CR>
+nnoremap <leader>r :redo<CR>
+nnoremap <leader>sh :term<CR>
+inoremap jj <Esc>
+vnoremap <leader>y "+y
+nnoremap <C-d> <C-d>zz "smooth scrolling
+nnoremap <C-u> <C-u>zz "smooth scrolling
+
+" Enable LSP automatically
+let g:lsp_auto_enable = 1
+
+" Keybindings for LSP
+nnoremap gd :LspDefinition<CR> 
+nnoremap gr :LspReferences<CR> 
+nnoremap gi :LspImplementation<CR> 
+nnoremap <leader>rn :LspRename<CR> 
+nnoremap <leader>ff :LspDocumentFormat<CR> 
+autocmd CursorHold * silent! LspHover
+nnoremap K :LspHover<CR>
+
+" Enable completion
+autocmd FileType c,cpp,python setlocal omnifunc=lsp#complete
+
+" Show autocomplete menu as you type
+set completeopt=menuone,noinsert,noselect
+" Use Tab to navigate completion menu
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+
 " Find files using FZF
-nnoremap <leader>f :Files<CR>
+nnoremap <leader>fz :Files<CR>
 
 " Search for text inside files
 nnoremap <leader>g :Rg<CR>
@@ -85,6 +107,20 @@ nnoremap <leader>g :Rg<CR>
 " nerd tree toggle
 nnoremap <leader>n :NERDTreeToggle<CR>
 
+" undo tree toggle
+nnoremap <leader>u :UndotreeToggle<CR>
+
 " Code snippets
 let g:UltiSnipsExpandTrigger="<Tab>"
 
+" Set colorscheme
+syntax enable    " Enable syntax highlighting
+filetype plugin indent on  " Enable filetype-specific settings
+set termguicolors
+set background=dark
+colorscheme gruvbox
+
+"git client
+nnoremap <leader>gs :Git<CR> 
+nnoremap <leader>gm :Git commit<CR> 
+nnoremap <leader>gp :Git push<CR> 
