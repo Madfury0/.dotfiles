@@ -5,9 +5,12 @@ let mapleader = " "
 set number
 set relativenumber
 
+" Disabling line wrap
+set wrap!
+
 " Set indentation options
 set expandtab
-se shiftwidth=4
+set shiftwidth=4
 set tabstop=4
 
 "syntax highlighting
