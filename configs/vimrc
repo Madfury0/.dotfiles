@@ -67,6 +67,9 @@ Plug 'tpope/vim-commentary'
 "Undo tree
 Plug 'mbbill/undotree'
 
+"Rust lsp
+Plug 'rust-lang/rust.vim'
+
 call plug#end()
 
 " Key mappings
