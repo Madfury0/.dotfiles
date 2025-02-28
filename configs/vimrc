@@ -18,7 +18,7 @@ syntax on
 
 " Enable mouse support and hover delay
 set mouse=a
-set updatetime=300
+set updatetime=1000
 
 " Show matching brackets
 set showmatch
@@ -46,7 +46,7 @@ Plug 'mattn/vim-lsp-settings'
 " git management
 Plug 'tpope/vim-fugitive'
 
-" file tree (nerdtree)
+" file tree (jerdtree)
 Plug 'preservim/nerdtree'
 
 "syntax highlighting
@@ -109,6 +109,8 @@ nnoremap <leader>g :Rg<CR>
 
 " nerd tree toggle
 nnoremap <leader>n :NERDTreeToggle<CR>
+nnoremap <leader>pv :tabp<CR>
+nnoremap <leader>pn :tabn<CR>
 
 " undo tree toggle
 nnoremap <leader>u :UndotreeToggle<CR>
