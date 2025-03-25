@@ -17,7 +17,7 @@ ln -sfv "$REPO_ROOT/configs/p10k.zsh" ~/.p10k.zsh
 # Install base dependencies
 sudo apt update
 sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format
-pip install black autopep8
+pip3 install --user black autopep8 python-lsp-server
 
 # Setup ZSH environment first
 # Install oh-my-zsh (must come before plugin/theme setup)
@@ -41,9 +41,7 @@ ZSH_SYNTAX_DIR=${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlig
 [ -f "$HOME/.vim/autoload/plug.vim" ] || curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 vim -es -u ~/.vimrc -i NONE -c "PlugInstall" -c "qa"
-
-# Install LSP servers (needs python3-pip installed)
-pip3 install --user python-lsp-server
+ 
 
 # Finalize shell setup (must be last to ensure all zsh components are ready)
 if [ "$SHELL" != "$(which zsh)" ]; then
