@@ -13,5 +13,6 @@ Personal configuration files for Linux development environment.
 
 ```bash
 git clone git@github.com:Madfury0/.dotfiles.git
-cd ~/.dotfiles
-./scripts/setup.sh
+cd ~/.dotfiles/scripts
+chmod +x setup.sh
+./setup.sh
