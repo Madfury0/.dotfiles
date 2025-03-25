@@ -12,6 +12,6 @@ Personal configuration files for Linux development environment.
 ## Installation
 
 ```bash
-git clone ssh@github.com:Madfury0/.dotfiles.git ~/.dotfiles
+git clone ssh@github.com:Madfury0/.dotfiles.git
 cd ~/.dotfiles
 ./scripts/setup.sh
