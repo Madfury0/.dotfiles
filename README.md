@@ -12,7 +12,7 @@ Personal configuration files for Linux development environment.
 ## Installation
 
 ```bash
-git clone git@github.com:Madfury0/.dotfiles.git
+git clone https://github.com/Madfury0/.dotfiles.git
 cd ~/.dotfiles/scripts
 chmod +x setup.sh
 ./setup.sh
