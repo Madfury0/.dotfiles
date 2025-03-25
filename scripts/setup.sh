@@ -13,7 +13,8 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Install base dependencies
 sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format
-pip3 install --user black autopep8 python-lsp-server
+
+pip3 install --user "python-lsp-server[all]"
 
 # Setup ZSH environment first
 # Install oh-my-zshell
