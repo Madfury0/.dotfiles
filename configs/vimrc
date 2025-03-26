@@ -86,9 +86,28 @@ nnoremap <C-u> <C-u>zz "smooth scrolling
 
 " Enable LSP automatically
 let g:lsp_auto_enable = 1
-let g:python3_host_prog = '$HOME/.lsp_venv/bin/python'
-au User lsp_setup call lsp#register_server({ 'name': 'pylsp', 'cmd': [expand('~/.lsp_venv/bin/pylsp')], 'whitelist': ['python'], 'initialization_options': { 'pylsp': { 'plugins': { 'flake8': {'enabled': v:true}, 'black': {'enabled': v:true}, 'isort': {'enabled': v:true}, 'mypy': {'enabled': v:true}, 'ruff': {'enabled': v:true} } } } })
-au User lsp_setup call lsp#register_server({ 'name': 'clangd', 'cmd': ['clangd'], 'whitelist': ['c', 'cpp', 'objc', 'objcpp'] })
+let g:python3_host_prog = expand('~/.local/share/pipx/venvs/python-lsp-server/bin/python')
+au User lsp_setup call lsp#register_server({
+    'name': 'pylsp',
+    'cmd': [expand('~/.local/share/pipx/venvs/python-lsp-server/bin/pylsp')],
+    'whitelist': ['python'],
+    'initialization_options': {
+        'pylsp': {
+            'plugins': {
+                'flake8': {'enabled': v:true},
+                'black': {'enabled': v:true},
+                'isort': {'enabled': v:true},
+                'mypy': {'enabled': v:true},
+                'ruff': {'enabled': v:true}
+            }
+        }
+    }
+})
+au User lsp_setup call lsp#register_server({
+    'name': 'clangd',
+    'cmd': ['clangd'],
+    'whitelist': ['c', 'cpp', 'objc', 'objcpp']
+})
 autocmd BufWritePre *.c,*.cpp,*.h execute ':silent !clang-format -i %'
 
 " Enable real-time LSP diagnostics
