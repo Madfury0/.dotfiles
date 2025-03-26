@@ -12,7 +12,7 @@ echo "Setting up Madfury's environment"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Install base dependencies
-sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format tmux clangd
+sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format tmux clangd python3-venv
 
 # Upgrade pip
 pip install --upgrade pip
