@@ -11,19 +11,21 @@ echo "Setting up Madfury's environment"
 # Get repository root directory
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+dir="~/.vim/snippets"
+dir=$(eval echo $dir)
+
+if [ ! -d "$dir" ]; then
+  mkdir -p "$dir"
+fi
+
+touch "$dir/c.json" "$dir/cpp.json" "$dir/python.json"
+
+
 # Install base dependencies
-sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format tmux clangd python3-venv
-
-# Upgrade pip
-pip install --upgrade pip
-
-# Create and activate a virtual environment for Python LSP
-VENV_DIR="$HOME/.lsp_venv"
-python3 -m venv "$VENV_DIR"
-source "$VENV_DIR/bin/activate"
+sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format tmux clangd python3-venv pipx
 
 # Install pylsp and all required tools
-pip install "python-lsp-server[all]"
+pipx install "python-lsp-server[all]"
 
 # Setup ZSH environment first
 # Install oh-my-zshell
@@ -43,7 +45,10 @@ ZSH_SYNTAX_DIR=${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlig
 ln -sfv "$REPO_ROOT/configs/vimrc" ~/.vimrc
 ln -sfv "$REPO_ROOT/configs/zshrc" ~/.zshrc
 ln -sfv "$REPO_ROOT/configs/p10k.zsh" ~/.p10k.zsh
-ln -sfv "$REPO_ROOT/vim/snippets" ~/.vim/snippets
+ln -sfv "$REPO_ROOT/vim/snippets/c.json" ~/.vim/snippets/c.json
+ln -sfv "$REPO_ROOT/vim/snippets/cpp.json" ~/.vim/snippets/cpp.json
+ln -sfv "$REPO_ROOT/vim/snippets/python.json" ~/.vim/snippets/python.json
+
 
 # Install FZF (needs git installed first)
 [ -d "$HOME/.fzf" ] || git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
