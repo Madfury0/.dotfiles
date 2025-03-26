@@ -18,7 +18,7 @@ sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clan
 pip install --upgrade pip
 
 # Create and activate a virtual environment for Python LSP
-VENV_DIR="$HOME/.venv"
+VENV_DIR="$HOME/.lsp_venv"
 python3 -m venv "$VENV_DIR"
 source "$VENV_DIR/bin/activate"
 
