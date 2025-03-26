@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Prevent running as root
-if [ "$EUID" -eq 0 ]; then
-    echo "Please do not run this script as root."
-    exit 1
-fi
 
 echo "Setting up Madfury's environment"
 
@@ -22,7 +17,7 @@ touch "$dir/c.json" "$dir/cpp.json" "$dir/python.json"
 
 
 # Install base dependencies
-sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format tmux clangd python3-venv pipx
+apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format tmux clangd python3-venv pipx
 
 # Install pylsp and all required tools
 pipx install "python-lsp-server[all]"
