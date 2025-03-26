@@ -13,7 +13,7 @@ Personal configuration files for Linux development environment.
 ```bash
 sudo apt update && sudo apt upgrade -y
 sudo apt install git
-git clone https://github.com/Madfury0/.dotfiles.git
+git clone https://github.com/Madfury0/.dotfiles.git -y
 cd ~/.dotfiles/scripts
 chmod +x setup.sh
 ./setup.sh
