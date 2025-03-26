@@ -6,15 +6,24 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
-echo "Setting up Madfur's environment"
+echo "Setting up Madfury's environment"
 
 # Get repository root directory
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Install base dependencies
-sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format tmux
+sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format tmux clangd
 
-pip3 install --user "python-lsp-server[all]"
+# Upgrade pip
+pip install --upgrade pip
+
+# Create and activate a virtual environment for Python LSP
+VENV_DIR="$HOME/.venv"
+python3 -m venv "$VENV_DIR"
+source "$VENV_DIR/bin/activate"
+
+# Install pylsp and all required tools
+pip install "python-lsp-server[all]"
 
 # Setup ZSH environment first
 # Install oh-my-zshell
