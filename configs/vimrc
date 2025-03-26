@@ -31,9 +31,6 @@ augroup YankHighlight
     autocmd CursorMoved,InsertEnter * silent! match none
 augroup END
 
-" Configure clipboard to use system clipboard
-set clipboard=unnamedplus
-
 " vim-plug 
 call plug#begin('~/.vim/plugged')
 
