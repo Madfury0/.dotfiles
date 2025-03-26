@@ -12,7 +12,7 @@ echo "Setting up Madfur's environment"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Install base dependencies
-sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format tmux vim
+sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format tmux
 
 pip3 install --user "python-lsp-server[all]"
 
