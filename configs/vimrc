@@ -53,9 +53,9 @@ Plug 'preservim/nerdtree'
 Plug 'morhetz/gruvbox'
 Plug 'sheerun/vim-polyglot'
 
-"snippets
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
+"snippets suggetions
+Plug 'hrsh7th/vim-vsnip'
+Plug 'hrsh7th/vim-vsnip-integ'
 
 "Fuzzy Find
 Plug 'junegunn/fzf'
@@ -64,11 +64,15 @@ Plug 'junegunn/fzf.vim'
 " Comments 
 Plug 'tpope/vim-commentary'
 
-"Undo tree
+" Undo tree
 Plug 'mbbill/undotree'
 
-"Rust lsp
+" Rust lsp
 Plug 'rust-lang/rust.vim'
+
+" AutoComplete
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
 
 call plug#end()
 
@@ -86,6 +90,21 @@ nnoremap <C-u> <C-u>zz "smooth scrolling
 " Enable LSP automatically
 let g:lsp_auto_enable = 1
 
+" Enable real-time LSP diagnostics
+let g:lsp_diagnostics_enabled = 1
+let g:lsp_diagnostics_echo_cursor = 1
+let g:lsp_diagnostics_virtual_text_enabled = 1
+let g:lsp_diagnostics_highlights_enabled = 1
+let g:lsp_diagnostics_signs_enabled = 1
+let g:lsp_diagnostics_signs_delay = 500
+let g:lsp_diagnostics_float_cursor = 1
+let g:lsp_diagnostics_float_delay = 500
+let g:lsp_diagnostics_virtual_text_prefix = "● "
+
+" Quickfix menu
+nnoremap <silent> <leader>d :LspDocumentDiagnostics<CR>
+nnoremap <silent> <leader>D :LspWorkspaceDiagnostics<CR>
+
 " Keybindings for LSP
 nnoremap gd :LspDefinition<CR> 
 nnoremap gr :LspReferences<CR> 
@@ -95,14 +114,17 @@ nnoremap <leader>ff :LspDocumentFormat<CR>
 autocmd CursorHold * silent! LspHover
 nnoremap K :LspHover<CR>
 
-" Enable completion
-autocmd FileType c,cpp,python setlocal omnifunc=lsp#complete
-
 " Show autocomplete menu as you type
 set completeopt=menuone,noinsert,noselect
+let g:asyncomplete_auto_popup = 1
+let g:asyncomplete_min_chars = 2
+let g:vsnip_snippet_dir = expand('~/.vim/snippets')
+autocmd User lsp_setup call asyncomplete#register_source({ 'name': 'lsp', 'whitelist': ['*'], 'completor': function('lsp#complete') })
+
 " Use Tab to navigate completion menu
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : vsnip#jumpable(1) ? "\<Plug>(vsnip-jump-next)" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : vsnip#jumpable(-1) ? "\<Plug>(vsnip-jump-prev)" : "\<S-Tab>"
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : vsnip#expandable() ? "\<Plug>(vsnip-expand)" : "\<CR>"
 
 " Find files using FZF
 nnoremap <leader>fz :Files<CR>
@@ -117,9 +139,6 @@ nnoremap <leader>pn :tabn<CR>
 
 " undo tree toggle
 nnoremap <leader>u :UndotreeToggle<CR>
-
-" Code snippets
-let g:UltiSnipsExpandTrigger="<Tab>"
 
 " Set colorscheme
 syntax enable    " Enable syntax highlighting

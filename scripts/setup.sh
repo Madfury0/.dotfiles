@@ -34,6 +34,7 @@ ZSH_SYNTAX_DIR=${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlig
 ln -sfv "$REPO_ROOT/configs/vimrc" ~/.vimrc
 ln -sfv "$REPO_ROOT/configs/zshrc" ~/.zshrc
 ln -sfv "$REPO_ROOT/configs/p10k.zsh" ~/.p10k.zsh
+ln -sfv "$REPO_ROOT/vim/snippets" ~/.vim/snippets
 
 # Install FZF (needs git installed first)
 [ -d "$HOME/.fzf" ] || git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
