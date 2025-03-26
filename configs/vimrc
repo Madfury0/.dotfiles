@@ -86,11 +86,11 @@ nnoremap <C-u> <C-u>zz "smooth scrolling
 
 " Enable LSP automatically
 let g:lsp_auto_enable = 1
-let g:python3_host_prog = expand('~/.local/share/pipx/venvs/python-lsp-server/bin/python')
+let g:python3_host_prog = expand('~/.local/pipx/venvs/python-lsp-server/bin/python')
 
 au User lsp_setup call lsp#register_server({
     \ 'name': 'pylsp',
-    \ 'cmd': [expand('~/.local/share/pipx/venvs/python-lsp-server/bin/pylsp')],
+    \ 'cmd': [expand('~/.local/bin/pylsp')],
     \ 'whitelist': ['python'],
     \ 'initialization_options': {
         \ 'pylsp': {
