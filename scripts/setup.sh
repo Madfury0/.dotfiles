@@ -26,6 +26,7 @@ sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clan
 
 # Install pylsp and all required tools
 pipx install "python-lsp-server[all]"
+pipx ensurepath
 
 # Setup ZSH environment first
 # Install oh-my-zshell
