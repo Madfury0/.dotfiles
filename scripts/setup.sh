@@ -12,7 +12,7 @@ echo "Setting up Madfur's environment"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Install base dependencies
-sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format tmux
+sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format tmux vim
 
 pip3 install --user "python-lsp-server[all]"
 
@@ -49,7 +49,8 @@ vim -es -u ~/.vimrc -i NONE -c "PlugInstall" -c "qa"
 # Finalize shell setup (must be last to ensure all zsh components are ready)
 if [ "$SHELL" != "$(which zsh)" ]; then
     chsh -s "$(which zsh)"
-    echo "Default shell changed to zsh. Please log out and back in."
+    echo "Default shell changed to zsh."
+    exec zsh
 fi
 
 echo "Setup complete! All your configs are ready:"
