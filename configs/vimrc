@@ -89,6 +89,11 @@ nnoremap <C-u> <C-u>zz "smooth scrolling
 
 " Enable LSP automatically
 let g:lsp_auto_enable = 1
+let g:python3_host_prog = '$HOME/.venv/bin/python'
+
+au User lsp_setup call lsp#register_server({ 'name': 'pylsp', 'cmd': ['$HOME/.venv/bin/pylsp'], 'allowlist': ['python'], 'initialization_options': { 'pylsp': { 'plugins': { 'flake8': {'enabled': v:true}, 'black': {'enabled': v:true}, 'isort': {'enabled': v:true}, 'mypy': {'enabled': v:true}, 'ruff': {'enabled': v:true} } } } } })
+
+au User lsp_setup call lsp#register_server({ 'name': 'clangd', 'cmd': ['clangd'], 'allowlist': ['c', 'cpp', 'objc', 'objcpp'] })
 
 " Enable real-time LSP diagnostics
 let g:lsp_diagnostics_enabled = 1
