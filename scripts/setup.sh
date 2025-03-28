@@ -42,6 +42,10 @@ P10K_DIR=${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 ZSH_SYNTAX_DIR=${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 [ -d "$ZSH_SYNTAX_DIR" ] || git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_SYNTAX_DIR"
 
+# Install zsh-autosuggestions
+ZSH_AUTOSUGGESTIONS_DIR=${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+[ -d "$ZSH_AUTOSUGGESTIONS_DIR" ] || git clone https://github.com/zsh-users/zsh-autosuggestions.git "$ZSH_AUTOSUGGESTIONS_DIR"
+
 # Create symlinks
 ln -sfv "$REPO_ROOT/configs/vimrc" ~/.vimrc
 ln -sfv "$REPO_ROOT/configs/zshrc" ~/.zshrc
