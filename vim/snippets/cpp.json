@@ -23,4 +23,44 @@
     "prefix": "class",
     "body": "class ${1:ClassName} {\npublic:\n\t${1:ClassName}(${2:args}) {\n\t\t$0\n\t}\n};"
   }
+},
+"do_while": {
+  "prefix": "do",
+  "body": "do {\n\t$0\n} while (${1:condition});"
+},
+"switch": {
+  "prefix": "switch",
+  "body": "switch (${1:variable}) {\n\tcase ${2:value}:\n\t\t$0\n\t\tbreak;\n\tdefault:\n\t\tbreak;\n}"
+},
+"function": {
+  "prefix": "func",
+  "body": "${1:void} ${2:functionName}(${3:params}) {\n\t$0\n}"
+},
+"struct": {
+  "prefix": "struct",
+  "body": "struct ${1:StructName} {\n\t${2:data}\n};"
+},
+"include_guard": {
+  "prefix": "guard",
+  "body": "#ifndef ${1:${TM_FILENAME_BASE/(.*)/${1:/upcase}_H/}}\n#define $1\n\n$0\n\n#endif // $1"
+},
+"cin": {
+  "prefix": "cin",
+  "body": "cin >> ${1:variable};"
+},
+"range_for": {
+  "prefix": "forr",
+  "body": "for (auto& ${1:element} : ${2:container}) {\n\t$0\n}"
+},
+"try_catch": {
+  "prefix": "try",
+  "body": "try {\n\t$0\n} catch (${1:const std::exception& e}) {\n\tstd::cerr << e.what() << std::endl;\n}"
+},
+"namespace": {
+  "prefix": "namespace",
+  "body": "namespace ${1:name} {\n\n$0\n\n} // namespace $1"
+},
+"comment_block": {
+  "prefix": "/*",
+  "body": "/**\n * $0\n */"
 }
