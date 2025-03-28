@@ -60,27 +60,6 @@ ln -sfv "$REPO_ROOT/vim/snippets/python.json" ~/.vim/snippets/python.json
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 vim -es -u ~/.vimrc -i NONE -c "PlugInstall" -c "qa"
  
-# set-up meslo fonts
-FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip"
-FONT_DIR="$HOME/.local/share/fonts"
-mkdir -p "$FONT_DIR"
-
-wget -q "$FONT_URL" -O /tmp/Meslo.zip
-unzip -o /tmp/Meslo.zip -d "$FONT_DIR"
-fc-cache -fv
-
-# set fonts for Gnome 
-if [[ $XDG_CURRENT_DESKTOP == "GNOME" ]]; then
-    dconf write /org/gnome/terminal/legacy/profiles:/:$(gsettings get org.gnome.Terminal.ProfilesList default | tr -d "'")/font "'MesloLGS NF 12'"
-echo "Font set for Gnome"
-fi
-
-# Set the default Konsole font (for KDE)
-if command -v konsole &> /dev/null; then
-    kde_config_file="$HOME/.config/konsolerc"
-    sed -i 's/^Font=.*/Font=MesloLGS NF,12,-1,5,50,0,0,0,0,0/' "$kde_config_file"
-    echo "Font set for Konsole."
-fi
 
 # Finalize shell setup (must be last to ensure all zsh components are ready)
 if [ "$SHELL" != "$(which zsh)" ]; then
