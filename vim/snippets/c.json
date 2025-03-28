@@ -269,4 +269,100 @@
 "esp_ethernet": {
   "prefix": "esp_ethernet",
   "body": "eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();\neth_phy_config_t phy_config = ETH_PHY_DEFAULT_CONFIG();\nphy_config.phy_addr = ${1:1};\nphy_config.reset_gpio_num = ${2:GPIO_NUM_5};\nesp_eth_mac_t *mac = esp_eth_mac_new_esp32(&mac_config);\nesp_eth_phy_t *phy = esp_eth_phy_new_lan87xx(&phy_config);\nesp_eth_config_t config = ETH_DEFAULT_CONFIG(mac, phy);\nesp_eth_handle_t eth_handle = NULL;\nesp_eth_driver_install(&config, &eth_handle);"
+},
+
+
+{
+  "stm32_main": {
+    "prefix": "stm32_main",
+    "body": [
+      "#include \"main.h\"",
+      "#include \"stm32f4xx_hal.h\"\n",
+      "int main(void) {",
+      "\tHAL_Init();",
+      "\tSystemClock_Config();",
+      "\tMX_GPIO_Init();",
+      "\tMX_USART2_UART_Init();",
+      "\t// Add other peripherals init\n",
+      "\twhile (1) {",
+      "\t\t$0",
+      "\t}",
+      "}"
+    ]
+  },
+  "stm32_gpio_write": {
+    "prefix": "stm32_gpio_write",
+    "body": "HAL_GPIO_WritePin(${1:GPIOA}, ${2:GPIO_PIN_5}, ${3:GPIO_PIN_SET});"
+  },
+  "stm32_gpio_read": {
+    "prefix": "stm32_gpio_read",
+    "body": "GPIO_PinState ${1:state} = HAL_GPIO_ReadPin(${2:GPIOB}, ${3:GPIO_PIN_0});"
+  },
+  "stm32_uart_tx": {
+    "prefix": "stm32_uart_tx",
+    "body": [
+      "HAL_UART_Transmit(&${1:huart2}, (uint8_t *)${2:\"Hello\\r\\n\"}, sizeof(${2}), ${3:100});"
+    ]
+  },
+  "stm32_uart_rx": {
+    "prefix": "stm32_uart_rx",
+    "body": [
+      "uint8_t ${1:rx_data}[${2:10}];",
+      "HAL_UART_Receive(&${3:huart2}, ${1}, ${2}, ${4:100});"
+    ]
+  },
+  "stm32_i2c": {
+    "prefix": "stm32_i2c",
+    "body": [
+      "HAL_I2C_Mem_Write(&${1:hi2c1}, ${2:DEV_ADDR}, ${3:REG_ADDR}, ${4:I2C_MEMADD_SIZE_8BIT}, ${5:data}, ${6:size}, ${7:100});"
+    ]
+  },
+  "stm32_spi": {
+    "prefix": "stm32_spi",
+    "body": [
+      "HAL_SPI_Transmit(&${1:hspi1}, ${2:data}, ${3:size}, ${4:100});"
+    ]
+  },
+  "stm32_pwm": {
+    "prefix": "stm32_pwm",
+    "body": [
+      "HAL_TIM_PWM_Start(&${1:htim2}, ${2:TIM_CHANNEL_1});",
+      "__HAL_TIM_SET_COMPARE(&${1}, ${2}, ${3:duty_cycle});"
+    ]
+  },
+  "stm32_adc": {
+    "prefix": "stm32_adc",
+    "body": [
+      "HAL_ADC_Start(&${1:hadc1});",
+      "if (HAL_ADC_PollForConversion(&${1}, ${2:100}) == HAL_OK) {",
+      "\tuint32_t ${3:value} = HAL_ADC_GetValue(&${1});",
+      "}"
+    ]
+  },
+  "stm32_interrupt": {
+    "prefix": "stm32_interrupt",
+    "body": [
+      "HAL_NVIC_SetPriority(${1:EXTI0_IRQn}, ${2:0}, ${3:0});",
+      "HAL_NVIC_EnableIRQ(${1});"
+    ]
+  },
+  "stm32_dma": {
+    "prefix": "stm32_dma",
+    "body": [
+      "HAL_${1:UART}_Transmit_DMA(&${2:huart2}, ${3:data}, ${4:size});"
+    ]
+  },
+  "stm32_timer": {
+    "prefix": "stm32_timer",
+    "body": [
+      "HAL_TIM_Base_Start_IT(&${1:htim3});"
+    ]
+  },
+  "stm32_rtc": {
+    "prefix": "stm32_rtc",
+    "body": [
+      "RTC_TimeTypeDef ${1:sTime};",
+      "HAL_RTC_GetTime(&${2:hrtc}, &${1}, RTC_FORMAT_BIN);"
+    ]
+  }
 }
