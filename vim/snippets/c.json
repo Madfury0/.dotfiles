@@ -75,7 +75,6 @@
     "body": "ESP_LOGI(\"${1:TAG}\", \"${2:Message}\");"
   }
 },
-
 "esp_http_client": {
   "prefix": "esp_http",
   "body": "esp_http_client_config_t config = {\n\t.url = \"${1:http://example.com}\",\n\t.event_handler = ${2:_http_event_handler},\n};\nesp_http_client_handle_t client = esp_http_client_init(&config);\nESP_ERROR_CHECK(esp_http_client_perform(client));\nESP_ERROR_CHECK(esp_http_client_cleanup(client));"
