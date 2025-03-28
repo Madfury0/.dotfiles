@@ -39,6 +39,100 @@
     "prefix": "include",
     "body": "#ifndef ${1:HEADER_H}\n#define ${1:HEADER_H}\n\n$0\n\n#endif /* ${1:HEADER_H} */"
   },
+{
+  "array": {
+    "prefix": "array",
+    "body": "${1:int} ${2:array}[${3:10}];"
+  },
+  "pointer": {
+    "prefix": "ptr",
+    "body": "${1:int} *${2:ptr} = &${3:variable};"
+  },
+  "malloc": {
+    "prefix": "malloc",
+    "body": "${1:int} *${2:ptr} = (${1:int} *)malloc(${3:size} * sizeof(${1:int}));\nif (${2:ptr} == NULL) {\n\tprintf(\"Memory allocation failed!\\n\");\n\texit(1);\n}"
+  },
+  "free": {
+    "prefix": "free",
+    "body": "free(${1:ptr});\n${1:ptr} = NULL;"
+  },
+  "fopen": {
+    "prefix": "fopen",
+    "body": "FILE *${1:file} = fopen(\"${2:filename}\", \"${3:r}\");\nif (${1:file} == NULL) {\n\tprintf(\"Error opening file!\\n\");\n\texit(1);\n}"
+  },
+  "fclose": {
+    "prefix": "fclose",
+    "body": "fclose(${1:file});"
+  },
+  "fprintf": {
+    "prefix": "fprintf",
+    "body": "fprintf(${1:file}, \"${2:format}\\n\", ${3:values});"
+  },
+  "fscanf": {
+    "prefix": "fscanf",
+    "body": "fscanf(${1:file}, \"${2:format}\", &${3:variable});"
+  },
+  "memcpy": {
+    "prefix": "memcpy",
+    "body": "memcpy(${1:dest}, ${2:src}, ${3:size} * sizeof(${4:type}));"
+  },
+  "memset": {
+    "prefix": "memset",
+    "body": "memset(${1:buffer}, ${2:0}, ${3:size} * sizeof(${4:type}));"
+  },
+  "strcmp": {
+    "prefix": "strcmp",
+    "body": "if (strcmp(${1:str1}, ${2:str2}) == 0) {\n\t$0\n}"
+  },
+  "strcpy": {
+    "prefix": "strcpy",
+    "body": "strcpy(${1:dest}, ${2:src});"
+  },
+  "strlen": {
+    "prefix": "strlen",
+    "body": "size_t ${1:length} = strlen(${2:string});"
+  },
+  "struct_init": {
+    "prefix": "struct_init",
+    "body": "${1:struct_name}_t ${2:instance} = { .${3:member} = ${4:value} };"
+  },
+  "typedef_enum": {
+    "prefix": "enum",
+    "body": "typedef enum {\n\t${1:VALUE1},\n\t${2:VALUE2},\n\t${3:VALUE3}\n} ${4:enum_name}_t;"
+  },
+  "define": {
+    "prefix": "define",
+    "body": "#define ${1:MACRO} ${2:value}"
+  },
+  "exit": {
+    "prefix": "exit",
+    "body": "exit(${1:EXIT_SUCCESS});"
+  },
+  "assert": {
+    "prefix": "assert",
+    "body": "#include <assert.h>\nassert(${1:condition});"
+  },
+  "qsort": {
+    "prefix": "qsort",
+    "body": "qsort(${1:array}, ${2:size}, sizeof(${3:type}), ${4:compare_function});"
+  },
+  "bsearch": {
+    "prefix": "bsearch",
+    "body": "void *${1:result} = bsearch(&${2:key}, ${3:array}, ${4:size}, sizeof(${5:type}), ${6:compare_function});"
+  },
+  "thread": {
+    "prefix": "thread",
+    "body": "#include <pthread.h>\n\npthread_t ${1:thread};\npthread_create(&${1:thread}, NULL, ${2:function}, NULL);"
+  },
+  "mutex": {
+    "prefix": "mutex",
+    "body": "#include <pthread.h>\n\npthread_mutex_t ${1:mutex} = PTHREAD_MUTEX_INITIALIZER;\npthread_mutex_lock(&${1:mutex});\n$0\npthread_mutex_unlock(&${1:mutex});"
+  },
+  "signal": {
+    "prefix": "signal",
+    "body": "#include <signal.h>\n\nsignal(${1:SIGNAL}, ${2:handler_function});"
+  }
+},
 
 
 
