@@ -138,7 +138,7 @@
 
   "esp_main": {
     "prefix": "esp_main",
-    "body": "#include \"esp_log.h\"\n\nvoid app_main() {\n\t${1:ESP_LOGI(\"TAG\", \"Hello from ESP-IDF!\");}\n\t$0\n}"
+    "body": "#include \"freertos/FreeRTOS.h\"\n#include \"freertos/task.h\"\n#include \"esp_log.h\"\n\nvoid app_main() {\n\t${1:ESP_LOGI(\"TAG\", \"Hello from ESP-IDF!\");}\n\t$0\n}"
   },
   "esp_task": {
     "prefix": "esp_task",
