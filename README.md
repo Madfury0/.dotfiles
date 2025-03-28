@@ -2,7 +2,7 @@
 
 A powerful Vim configuration tailored for modern development workflows, featuring LSP support, fuzzy finding, git integration, and intelligent code completion. Designed for Debian-based systems but adaptable to any Linux distribution.
 
-## Environment targete audience:
+## 🤓 Target audience:
 Lsp and snippets will be beneficial to:
 
 - C/Cpp coders
