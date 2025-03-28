@@ -18,5 +18,59 @@
   "printf": {
     "prefix": "printf",
     "body": "printf(\"${1:Hello, World!}\\n\");"
+  },
+  "struct": {
+    "prefix": "struct",
+    "body": "typedef struct {\n\t${1:int} ${2:member};\n} ${3:struct_name}_t;"
+  },
+  "switch": {
+    "prefix": "switch",
+    "body": "switch (${1:variable}) {\n\tcase ${2:value}:\n\t\t$0\n\t\tbreak;\n\tdefault:\n\t\tbreak;\n}"
+  },
+  "function": {
+    "prefix": "func",
+    "body": "${1:void} ${2:function_name}(${3:params}) {\n\t$0\n}"
+  },
+  "do_while": {
+    "prefix": "do",
+    "body": "do {\n\t$0\n} while (${1:condition});"
+  },
+  "header_include": {
+    "prefix": "include",
+    "body": "#ifndef ${1:HEADER_H}\n#define ${1:HEADER_H}\n\n$0\n\n#endif /* ${1:HEADER_H} */"
+  },
+
+  // ESP-IDF Specific
+  "esp_main": {
+    "prefix": "esp_main",
+    "body": "#include \"esp_log.h\"\n\nvoid app_main() {\n\t${1:ESP_LOGI(\"TAG\", \"Hello from ESP-IDF!\");}\n\t$0\n}"
+  },
+  "esp_task": {
+    "prefix": "esp_task",
+    "body": "void ${1:task_name}(void *pvParameters) {\n\twhile(1) {\n\t\t${2:// Task logic}\n\t\tvTaskDelay(${3:1000} / portTICK_PERIOD_MS);\n\t}\n}\n\nxTaskCreate(&${1:task_name}, \"${4:TaskName}\", ${5:2048}, NULL, ${6:5}, NULL);"
+  },
+  "esp_timer": {
+    "prefix": "esp_timer",
+    "body": "void ${1:timer_callback}(void* arg) {\n\t$0\n}\n\nesp_timer_create_args_t ${2:TimerArgs} = {\n\t.callback = &${1:timer_callback},\n\t${3:// Add other parameters}\n};\n\nesp_timer_handle_t ${4:TimerHandle};\nesp_timer_create(&${2:TimerArgs}, &${4:TimerHandle});\nesp_timer_start_periodic(${4:TimerHandle}, ${5:1000000});"
+  },
+  "esp_gpio": {
+    "prefix": "esp_gpio",
+    "body": "gpio_config_t ${1:io_conf} = {\n\t.pin_bit_mask = (1ULL << ${2:GPIO_NUM}),\n\t.mode = ${3:GPIO_MODE_OUTPUT},\n\t.pull_up_en = ${4:GPIO_PULLUP_DISABLE},\n\t.pull_down_en = ${5:GPIO_PULLDOWN_DISABLE},\n\t.intr_type = ${6:GPIO_INTR_DISABLE}\n};\ngpio_config(&${1:io_conf});"
+  },
+  "esp_wifi": {
+    "prefix": "esp_wifi",
+    "body": "wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();\nESP_ERROR_CHECK(esp_wifi_init(&cfg));\nESP_ERROR_CHECK(esp_wifi_set_mode(${1:WIFI_MODE_STA}));\nESP_ERROR_CHECK(esp_wifi_start());"
+  },
+  "esp_event": {
+    "prefix": "esp_event",
+    "body": "ESP_ERROR_CHECK(esp_event_handler_instance_register(${1:WIFI_EVENT},\n\t\t\t\t\t\t\t\t\t\t${2:ESP_EVENT_ANY_ID},\n\t\t\t\t\t\t\t\t\t\t${3:event_handler},\n\t\t\t\t\t\t\t\t\t\tNULL,\n\t\t\t\t\t\t\t\t\t\tNULL));"
+  },
+  "esp_spiffs": {
+    "prefix": "esp_spiffs",
+    "body": "esp_vfs_spiffs_conf_t conf = {\n\t.base_path = \"/spiffs\",\n\t.partition_label = NULL,\n\t.max_files = ${1:5},\n\t.format_if_mount_failed = ${2:true}\n};\nESP_ERROR_CHECK(esp_vfs_spiffs_register(&conf));"
+  },
+  "esp_log": {
+    "prefix": "esp_log",
+    "body": "ESP_LOGI(\"${1:TAG}\", \"${2:Message}\");"
   }
 }
