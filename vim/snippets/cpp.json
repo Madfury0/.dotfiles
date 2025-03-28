@@ -63,4 +63,76 @@
 "comment_block": {
   "prefix": "/*",
   "body": "/**\n * $0\n */"
+},
+"lambda": {
+  "prefix": "lmd",
+  "body": "[${1:&}](${2:args}) ${3:mutable} ${4:noexcept} -> ${5:ret} {\n\t$0\n}"
+},
+"auto_variable": {
+  "prefix": "auto",
+  "body": "auto ${1:var} = ${2:value};"
+},
+"smart_ptr_unique": {
+  "prefix": "uniqptr",
+  "body": "std::unique_ptr<${1:Type}> ${2:ptr} = std::make_unique<${1:Type}>(${3:args});"
+},
+"smart_ptr_shared": {
+  "prefix": "shrdptr",
+  "body": "std::shared_ptr<${1:Type}> ${2:ptr} = std::make_shared<${1:Type}>(${3:args});"
+},
+"move_semantics": {
+  "prefix": "move",
+  "body": "std::move(${1:object})"
+},
+"constexpr": {
+  "prefix": "constexpr",
+  "body": "constexpr ${1:type} ${2:name} = ${3:value};"
+},
+"structured_binding": {
+  "prefix": "structbind",
+  "body": "auto& [${1:var1}, ${2:var2}] = ${3:container};"
+},
+"concept": {
+  "prefix": "concept",
+  "body": "template<typename ${1:T}>\nconcept ${2:ConceptName} = requires(${1:T} t) {\n\t$0\n};"
+},
+"template_fold": {
+  "prefix": "fold",
+  "body": "(${1:args} ${2:+} ... ${3:+} ${4:init})"
+},
+"thread": {
+  "prefix": "thrd",
+  "body": "std::thread ${1:t}([]() {\n\t$0\n});\n${1:t}.join();"
+},
+"atomic": {
+  "prefix": "atomic",
+  "body": "std::atomic<${1:int}> ${2:var}(${3:0});"
+},
+"variant": {
+  "prefix": "variant",
+  "body": "std::variant<${1:types}> ${2:var};"
+},
+"optional": {
+  "prefix": "optional",
+  "body": "std::optional<${1:type}> ${2:var};"
+},
+"string_view": {
+  "prefix": "sv",
+  "body": "std::string_view ${1:sv} = \"${2:text}\";"
+},
+"ranges": {
+  "prefix": "rng",
+  "body": "std::ranges::${1:algorithm}(${2:container}${3:, [](auto& a) { $0 \}});"
+},
+"tuple": {
+  "prefix": "tuple",
+  "body": "std::tuple<${1:types}> ${2:tup};"
+},
+"user_literal": {
+  "prefix": "lit",
+  "body": "${1:type} operator\"\" ${2:_name}(${3:unsigned long long n}) {\n\treturn $0;\n}"
+},
+"nodiscard": {
+  "prefix": "nodiscard",
+  "body": "[[nodiscard]] ${1:return_type} ${2:function}(${3:args})"
 }
