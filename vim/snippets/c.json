@@ -114,4 +114,64 @@
 "esp_ota": {
   "prefix": "esp_ota",
   "body": "esp_ota_handle_t update_handle;\nconst esp_partition_t *update_partition = esp_ota_get_next_update_partition(NULL);\nESP_ERROR_CHECK(esp_ota_begin(update_partition, OTA_SIZE_UNKNOWN, &update_handle));\nESP_ERROR_CHECK(esp_ota_write(update_handle, (const void *)${1:data}, ${2:length}));\nESP_ERROR_CHECK(esp_ota_end(update_handle));"
+},
+"esp_deepsleep": {
+  "prefix": "esp_deepsleep",
+  "body": "esp_sleep_enable_timer_wakeup(${1:5} * 1000000);\nesp_deep_sleep_start();"
+},
+"esp_touch": {
+  "prefix": "esp_touch",
+  "body": "touch_pad_init();\ntouch_pad_config(${1:TOUCH_PAD_NUM0}, ${2:0}/* Threshold */);\ntouch_pad_read(${1:TOUCH_PAD_NUM0}, &${3:raw_value});"
+},
+"esp_nvs_read": {
+  "prefix": "esp_nvs_read",
+  "body": "nvs_handle_t nvs_handle;\nint32_t ${1:value} = 0;\nESP_ERROR_CHECK(nvs_open(\"${2:storage}\", NVS_READONLY, &nvs_handle));\nESP_ERROR_CHECK(nvs_get_i32(nvs_handle, \"${3:key}\", &${1:value}));\nnvs_close(nvs_handle);"
+},
+"esp_isr": {
+  "prefix": "esp_isr",
+  "body": "void ${1:isr_handler}(void* args) {\n\t$0\n}\n\ngpio_install_isr_service(${2:0});\ngpio_isr_handler_add(${3:GPIO_NUM}, ${1:isr_handler}, NULL);"
+},
+"esp_sntp": {
+  "prefix": "esp_sntp",
+  "body": "sntp_setoperatingmode(SNTP_OPMODE_POLL);\nsntp_setservername(0, \"${1:pool.ntp.org}\");\nsntp_init();\n// Wait for time sync (implement timeout logic in real code)"
+},
+"esp_fatfs": {
+  "prefix": "esp_fatfs",
+  "body": "esp_vfs_fat_mount_config_t mount_config = {\n\t.max_files = ${1:4},\n\t.format_if_mount_failed = ${2:true}\n};\nwl_handle_t ${3:wl_handle};\nESP_ERROR_CHECK(esp_vfs_fat_spiflash_mount(\"/fatfs\", \"storage\", &mount_config, &${3:wl_handle}));"
+},
+"esp_event_loop": {
+  "prefix": "esp_event_loop",
+  "body": "esp_event_loop_args_t loop_args = {\n\t.queue_size = ${1:10},\n\t.task_name = \"event_loop_task\",\n\t.task_priority = ${2:5},\n\t.task_stack_size = ${3:4096}\n};\nesp_event_loop_handle_t ${4:event_loop};\nESP_ERROR_CHECK(esp_event_loop_create(&loop_args, &${4:event_loop}));"
+},
+"esp_gpio_isr": {
+  "prefix": "esp_gpio_isr",
+  "body": "gpio_set_intr_type(${1:GPIO_NUM}, ${2:GPIO_INTR_NEGEDGE});\ngpio_intr_enable(${1:GPIO_NUM});"
+},
+"esp_rtc": {
+  "prefix": "esp_rtc",
+  "body": "struct timeval tv_now;\ngettimeofday(&tv_now, NULL);\nstruct tm timeinfo;\nlocaltime_r(&tv_now.tv_sec, &timeinfo);"
+},
+"esp_aes": {
+  "prefix": "esp_aes",
+  "body": "esp_aes_context ctx;\nesp_aes_init(&ctx);\nesp_aes_setkey(&ctx, ${1:key}, ${2:256});\nesp_aes_crypt_ecb(&ctx, ESP_AES_ENCRYPT, ${3:input}, ${4:output});"
+},
+"esp_sha": {
+  "prefix": "esp_sha",
+  "body": "unsigned char ${1:output}[32];\nesp_sha(SHA2_256, ${2:input}, ${3:len}, ${1:output});"
+},
+"esp_watchdog": {
+  "prefix": "esp_watchdog",
+  "body": "esp_task_wdt_init(${1:5}, ${2:true});\nesp_task_wdt_add(NULL);"
+},
+"esp_partition": {
+  "prefix": "esp_partition",
+  "body": "const esp_partition_t* ${1:partition} = esp_partition_find_first(\n\t${2:ESP_PARTITION_TYPE_DATA},\n\t${3:ESP_PARTITION_SUBTYPE_ANY},\n\t\"${4:storage}\");"
+},
+"esp_can": {
+  "prefix": "esp_can",
+  "body": "twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(${1:GPIO_NUM_21}, ${2:GPIO_NUM_22}, TWAI_MODE_NORMAL);\ntwai_timing_config_t t_config = TWAI_TIMING_CONFIG_${3:250}KBITS();\ntwai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();\ntwai_driver_install(&g_config, &t_config, &f_config);\ntwai_start();"
+},
+"esp_ethernet": {
+  "prefix": "esp_ethernet",
+  "body": "eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();\neth_phy_config_t phy_config = ETH_PHY_DEFAULT_CONFIG();\nphy_config.phy_addr = ${1:1};\nphy_config.reset_gpio_num = ${2:GPIO_NUM_5};\nesp_eth_mac_t *mac = esp_eth_mac_new_esp32(&mac_config);\nesp_eth_phy_t *phy = esp_eth_phy_new_lan87xx(&phy_config);\nesp_eth_config_t config = ETH_DEFAULT_CONFIG(mac, phy);\nesp_eth_handle_t eth_handle = NULL;\nesp_eth_driver_install(&config, &eth_handle);"
 }
