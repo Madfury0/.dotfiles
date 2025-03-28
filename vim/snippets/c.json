@@ -40,7 +40,8 @@
     "body": "#ifndef ${1:HEADER_H}\n#define ${1:HEADER_H}\n\n$0\n\n#endif /* ${1:HEADER_H} */"
   },
 
-  // ESP-IDF Specific
+
+
   "esp_main": {
     "prefix": "esp_main",
     "body": "#include \"esp_log.h\"\n\nvoid app_main() {\n\t${1:ESP_LOGI(\"TAG\", \"Hello from ESP-IDF!\");}\n\t$0\n}"
@@ -73,4 +74,45 @@
     "prefix": "esp_log",
     "body": "ESP_LOGI(\"${1:TAG}\", \"${2:Message}\");"
   }
+},
+
+"esp_http_client": {
+  "prefix": "esp_http",
+  "body": "esp_http_client_config_t config = {\n\t.url = \"${1:http://example.com}\",\n\t.event_handler = ${2:_http_event_handler},\n};\nesp_http_client_handle_t client = esp_http_client_init(&config);\nESP_ERROR_CHECK(esp_http_client_perform(client));\nESP_ERROR_CHECK(esp_http_client_cleanup(client));"
+},
+"esp_mqtt": {
+  "prefix": "esp_mqtt",
+  "body": "esp_mqtt_client_config_t mqtt_cfg = {\n\t.broker.address.uri = \"${1:mqtt://mqtt.eclipse.org}\",\n};\nesp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);\nESP_ERROR_CHECK(esp_mqtt_client_start(client));"
+},
+"esp_adc": {
+  "prefix": "esp_adc",
+  "body": "adc1_config_width(${1:ADC_WIDTH_BIT_12});\nadc1_config_channel_atten(${2:ADC1_CHANNEL_0}, ${3:ADC_ATTEN_DB_11});\nint raw = adc1_get_raw(${2:ADC1_CHANNEL_0});"
+},
+"esp_i2c": {
+  "prefix": "esp_i2c",
+  "body": "i2c_config_t conf = {\n\t.mode = I2C_MODE_MASTER,\n\t.sda_io_num = ${1:GPIO_NUM_21},\n\t.scl_io_num = ${2:GPIO_NUM_22},\n\t.sda_pullup_en = GPIO_PULLUP_ENABLE,\n\t.scl_pullup_en = GPIO_PULLUP_ENABLE,\n\t.master.clk_speed = ${3:100000}\n};\ni2c_param_config(I2C_NUM_0, &conf);\ni2c_driver_install(I2C_NUM_0, I2C_MODE_MASTER, 0, 0, 0);"
+},
+"esp_spi": {
+  "prefix": "esp_spi",
+  "body": "spi_bus_config_t buscfg = {\n\t.miso_io_num = ${1:GPIO_NUM_19},\n\t.mosi_io_num = ${2:GPIO_NUM_23},\n\t.sclk_io_num = ${3:GPIO_NUM_18},\n\t.quadwp_io_num = -1,\n\t.quadhd_io_num = -1\n};\nspi_device_interface_config_t devcfg = {\n\t.clock_speed_hz = ${4:1000000},\n\t.mode = ${5:0},\n\t.spics_io_num = ${6:GPIO_NUM_5},\n\t.queue_size = ${7:7}\n};\nspi_bus_initialize(SPI_HOST, &buscfg, SPI_DMA_CH_AUTO);\nspi_bus_add_device(SPI_HOST, &devcfg, &spi);"
+},
+"esp_pwm": {
+  "prefix": "esp_pwm",
+  "body": "ledc_timer_config_t timer_cfg = {\n\t.speed_mode = LEDC_HIGH_SPEED_MODE,\n\t.duty_resolution = LEDC_TIMER_${1:13}_BIT,\n\t.timer_num = LEDC_TIMER_0,\n\t.freq_hz = ${2:5000}\n};\nledc_channel_config_t channel_cfg = {\n\t.gpio_num = ${3:GPIO_NUM_18},\n\t.speed_mode = LEDC_HIGH_SPEED_MODE,\n\t.channel = LEDC_CHANNEL_0,\n\t.timer_sel = LEDC_TIMER_0,\n\t.duty = ${4:4096}\n};\nledc_timer_config(&timer_cfg);\nledc_channel_config(&channel_cfg);"
+},
+"esp_nvs": {
+  "prefix": "esp_nvs",
+  "body": "nvs_handle_t nvs_handle;\nESP_ERROR_CHECK(nvs_open(\"${1:storage}\", NVS_READWRITE, &nvs_handle));\nESP_ERROR_CHECK(nvs_set_i32(nvs_handle, \"${2:key}\", ${3:value}));\nESP_ERROR_CHECK(nvs_commit(nvs_handle));\nnvs_close(nvs_handle);"
+},
+"esp_uart": {
+  "prefix": "esp_uart",
+  "body": "uart_config_t uart_config = {\n\t.baud_rate = ${1:115200},\n\t.data_bits = UART_DATA_8_BITS,\n\t.parity = UART_PARITY_DISABLE,\n\t.stop_bits = UART_STOP_BITS_1,\n\t.flow_ctrl = UART_HW_FLOWCTRL_DISABLE\n};\nuart_param_config(UART_NUM_1, &uart_config);\nuart_set_pin(UART_NUM_1, ${2:GPIO_NUM_17}, ${3:GPIO_NUM_16}, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);"
+},
+"esp_ble": {
+  "prefix": "esp_ble",
+  "body": "esp_ble_gap_register_callback(esp_gap_cb);\nesp_ble_gatts_register_callback(esp_gatts_cb);\nesp_ble_gatts_app_register(${1:ESP_ID_APP});\nesp_ble_gap_set_device_name(\"${2:ESP32_DEVICE}\");"
+},
+"esp_ota": {
+  "prefix": "esp_ota",
+  "body": "esp_ota_handle_t update_handle;\nconst esp_partition_t *update_partition = esp_ota_get_next_update_partition(NULL);\nESP_ERROR_CHECK(esp_ota_begin(update_partition, OTA_SIZE_UNKNOWN, &update_handle));\nESP_ERROR_CHECK(esp_ota_write(update_handle, (const void *)${1:data}, ${2:length}));\nESP_ERROR_CHECK(esp_ota_end(update_handle));"
 }
