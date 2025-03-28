@@ -127,6 +127,8 @@ let g:lsp_diagnostics_virtual_text_prefix = "● "
 " Quickfix menu
 nnoremap <silent> <leader>d :LspDocumentDiagnostics<CR>
 nnoremap <silent> <leader>D :LspWorkspaceDiagnostics<CR>
+nnoremap <silent> <leader>qf :LspCodeAction<CR>
+nnoremap <silent> <leader>Q :LspCodeActionCursor<CR>
 
 " Keybindings for LSP
 nnoremap gd :LspDefinition<CR> 
