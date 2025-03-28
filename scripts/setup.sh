@@ -68,6 +68,7 @@ mkdir -p "$FONT_DIR"
 wget -q "$FONT_URL" -O /tmp/Meslo.zip
 unzip -o /tmp/Meslo.zip -d "$FONT_DIR"
 fc-cache -fv
+
 # set fonts for Gnome 
 if [[ $XDG_CURRENT_DESKTOP == "GNOME" ]]; then
     dconf write /org/gnome/terminal/legacy/profiles:/:$(gsettings get org.gnome.Terminal.ProfilesList default | tr -d "'")/font "'MesloLGS NF 12'"
