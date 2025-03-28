@@ -113,6 +113,25 @@ au User lsp_setup call lsp#register_server({
 
 autocmd BufWritePre *.c,*.cpp,*.h :silent !clang-format -i %
 
+au User lsp_setup call lsp#register_server({
+    \ 'name': 'rust-analyzer',
+    \ 'cmd': ['rust-analyzer'],
+    \ 'whitelist': ['rust'],
+    \ 'initialization_options': {
+        \ 'cargo': {
+            \ 'loadOutDirsFromCheck': v:true,
+        \ },
+        \ 'procMacro': {
+            \ 'enable': v:true
+        \ },
+        \ 'checkOnSave': {
+            \ 'command': 'clippy'
+        \ }
+    \ }
+\ })
+
+autocmd BufWritePre *.rs :silent !rustfmt %
+
 " Enable real-time LSP diagnostics
 let g:lsp_diagnostics_enabled = 1
 let g:lsp_diagnostics_echo_cursor = 1
