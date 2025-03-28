@@ -365,4 +365,166 @@
       "HAL_RTC_GetTime(&${2:hrtc}, &${1}, RTC_FORMAT_BIN);"
     ]
   }
+},
+{
+  "stm32_clock_config": {
+    "prefix": "stm32_clock",
+    "body": [
+      "void SystemClock_Config(void) {",
+      "\tRCC_OscInitTypeDef RCC_OscInitStruct = {0};",
+      "\tRCC_ClkInitTypeDef RCC_ClkInitStruct = {0};",
+      "\t",
+      "\t// Configure main internal regulator output voltage",
+      "\t__HAL_RCC_PWR_CLK_ENABLE();",
+      "\t__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE${1:1});",
+      "\t",
+      "\t// Initialize oscillator settings",
+      "\tRCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_${2:HSE};",
+      "\tRCC_OscInitStruct.${2:HSE}.State = RCC_HSE_${3:ON};",
+      "\tHAL_RCC_OscConfig(&RCC_OscInitStruct);",
+      "\t",
+      "\t// Initialize CPU, AHB, APB clocks",
+      "\tRCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK",
+      "\t\t|RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;",
+      "\tRCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_${4:PLLCLK};",
+      "\tRCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV${5:1};",
+      "\tRCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV${6:4};",
+      "\tRCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV${7:2};",
+      "\tHAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_${8:5});",
+      "}"
+    ]
+  },
+  "stm32_exti": {
+    "prefix": "stm32_exti",
+    "body": [
+      "HAL_GPIO_Init(${1:GPIOA}, &(GPIO_InitTypeDef){",
+      "\t.Pin = ${2:GPIO_PIN_0},",
+      "\t.Mode = GPIO_MODE_IT_${3:RISING},",
+      "\t.Pull = GPIO_${4:PULLUP},",
+      "\t.Speed = GPIO_SPEED_FREQ_${5:HIGH}",
+      "});"
+    ]
+  },
+  "stm32_dma_rx": {
+    "prefix": "stm32_dma_rx",
+    "body": [
+      "HAL_${1:UART}_Receive_DMA(&${2:huart2}, ${3:rx_buffer}, ${4:BUFFER_SIZE});"
+    ]
+  },
+  "stm32_adc_dma": {
+    "prefix": "stm32_adc_dma",
+    "body": [
+      "HAL_ADC_Start_DMA(&${1:hadc1}, (uint32_t*)${2:adc_buffer}, ${3:BUFFER_SIZE});"
+    ]
+  },
+  "stm32_low_power": {
+    "prefix": "stm32_low_power",
+    "body": [
+      "HAL_PWR_Enter${1:SLEEP}Mode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_${2:WFI});"
+    ]
+  },
+  "stm32_timer_ic": {
+    "prefix": "stm32_timer_ic",
+    "body": [
+      "HAL_TIM_IC_Start_IT(&${1:htim3}, TIM_CHANNEL_${2:1});"
+    ]
+  },
+  "stm32_iwdg": {
+    "prefix": "stm32_iwdg",
+    "body": [
+      "HAL_IWDG_Init(&(IWDG_HandleTypeDef){",
+      "\t.Instance = IWDG,",
+      "\t.Init = {",
+      "\t\t.Prescaler = IWDG_PRESCALER_${1:256},",
+      "\t\t.Reload = ${2:4095}",
+      "\t}",
+      "});\nHAL_IWDG_Refresh(&hiwdg);"
+    ]
+  },
+  "stm32_crc": {
+    "prefix": "stm32_crc",
+    "body": [
+      "${1:uint32_t} crc = HAL_CRC_Calculate(&${2:hcrc}, ${3:data}, ${4:length});"
+    ]
+  },
+  "stm32_flash": {
+    "prefix": "stm32_flash",
+    "body": [
+      "HAL_FLASH_Unlock();",
+      "FLASH_EraseInitTypeDef erase = {",
+      "\t.TypeErase = FLASH_TYPEERASE_${1:SECTORS},",
+      "\t.Sector = FLASH_SECTOR_${2:5},",
+      "\t.NbSectors = ${3:1},",
+      "\t.VoltageRange = FLASH_VOLTAGE_RANGE_${4:3}",
+      "};",
+      "uint32_t sector_error = 0;",
+      "HAL_FLASHEx_Erase(&erase, &sector_error);",
+      "HAL_FLASH_Program(FLASH_TYPEPROGRAM_${5:WORD}, ${6:address}, ${7:data});",
+      "HAL_FLASH_Lock();"
+    ]
+  },
+  "stm32_i2s": {
+    "prefix": "stm32_i2s",
+    "body": [
+      "HAL_I2S_Transmit(&${1:hi2s3}, (uint16_t *)${2:pData}, ${3:size}, ${4:100});"
+    ]
+  },
+  "stm32_can": {
+    "prefix": "stm32_can",
+    "body": [
+      "CAN_TxHeaderTypeDef tx_header = {",
+      "\t.StdId = ${1:0x123},",
+      "\t.ExtId = ${2:0x00},",
+      "\t.IDE = CAN_ID_${3:STD},",
+      "\t.RTR = CAN_RTR_${4:DATA},",
+      "\t.DLC = ${5:8}",
+      "};",
+      "HAL_CAN_AddTxMessage(&${6:hcan1}, &tx_header, ${7:data}, &tx_mailbox);"
+    ]
+  },
+  "stm32_usb": {
+    "prefix": "stm32_usb",
+    "body": [
+      "USBD_Start(&${1:hUsbDeviceFS});"
+    ]
+  },
+  "stm32_freertos": {
+    "prefix": "stm32_freertos",
+    "body": [
+      "osThreadNew(${1:thread_function}, NULL, &${2:thread_attributes});"
+    ]
+  },
+  "stm32_periph_deinit": {
+    "prefix": "stm32_deinit",
+    "body": [
+      "HAL_${1:UART}_DeInit(&${2:huart2});"
+    ]
+  },
+  "stm32_assert": {
+    "prefix": "stm32_assert",
+    "body": [
+      "void assert_failed(uint8_t *file, uint32_t line) {",
+      "\twhile(1) {",
+      "\t\t// Implement custom assert behavior",
+      "\t}",
+      "}"
+    ]
+  },
+  "stm32_systick": {
+    "prefix": "stm32_delay",
+    "body": [
+      "HAL_Delay(${1:100});"
+    ]
+  },
+  "stm32_adc_multichannel": {
+    "prefix": "stm32_adc_multi",
+    "body": [
+      "ADC_ChannelConfTypeDef sConfig = {",
+      "\t.Channel = ADC_CHANNEL_${1:0},",
+      "\t.Rank = ${2:1},",
+      "\t.SamplingTime = ADC_SAMPLETIME_${3:480CYCLES}",
+      "};",
+      "HAL_ADC_ConfigChannel(&${4:hadc1}, &sConfig);"
+    ]
+  }
 }
