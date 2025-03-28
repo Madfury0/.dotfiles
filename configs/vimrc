@@ -105,6 +105,9 @@ au User lsp_setup call lsp#register_server({
     \ }
 \ })
 
+autocmd BufWritePre *.py :silent !black --quiet -q %
+autocmd BufWritePre *.py :silent !isort --profile black %
+
 au User lsp_setup call lsp#register_server({
     \ 'name': 'clangd',
     \ 'cmd': ['clangd'],
