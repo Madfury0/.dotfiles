@@ -67,4 +67,76 @@
       "\t$0"
     ]
   }
+},
+
+
+
+
+"arduino_setup_loop": {
+  "prefix": "arduino",
+  "body": "void setup() {\n\t${1:// put your setup code here, to run once:}\n}\n\nvoid loop() {\n\t${2:// put your main code here, to run repeatedly:}\n}"
+},
+"pin_mode": {
+  "prefix": "pm",
+  "body": "pinMode(${1:pin}, ${2:INPUT|OUTPUT|INPUT_PULLUP});"
+},
+"digital_write": {
+  "prefix": "dw",
+  "body": "digitalWrite(${1:pin}, ${2:HIGH|LOW});"
+},
+"digital_read": {
+  "prefix": "dr",
+  "body": "digitalRead(${1:pin});"
+},
+"analog_read": {
+  "prefix": "ar",
+  "body": "analogRead(${1:pin});"
+},
+"analog_write": {
+  "prefix": "aw",
+  "body": "analogWrite(${1:pin}, ${2:value});"
+},
+"serial_begin": {
+  "prefix": "serbegin",
+  "body": "Serial.begin(${1:9600});"
+},
+"serial_print": {
+  "prefix": "serprint",
+  "body": "Serial.print(${1:\"message\"}${2:, format});"
+},
+"serial_println": {
+  "prefix": "serprintln",
+  "body": "Serial.println(${1:\"message\"}${2:, format});"
+},
+"delay_ms": {
+  "prefix": "delay",
+  "body": "delay(${1:1000});"
+},
+"millis": {
+  "prefix": "millis",
+  "body": "millis()"
+},
+"attach_interrupt": {
+  "prefix": "interrupt",
+  "body": "attachInterrupt(digitalPinToInterrupt(${1:pin}), ${2:ISR}, ${3:RISING|FALLING|CHANGE});"
+},
+"isr": {
+  "prefix": "isr",
+  "body": "void ${1:functionName}() {\n\t${2:// interrupt code}\n}"
+},
+"servo": {
+  "prefix": "servo",
+  "body": "#include <Servo.h>\n\nServo ${1:myservo};\n\nvoid setup() {\n\t${1:myservo}.attach(${2:9});\n}\n\nvoid loop() {\n\t${1:myservo}.write(${3:90});\n}"
+},
+"ultrasonic": {
+  "prefix": "sonic",
+  "body": "long ${1:duration}, ${2:distance};\ndigitalWrite(${3:triggerPin}, LOW);\ndelayMicroseconds(2);\ndigitalWrite(${3:triggerPin}, HIGH);\ndelayMicroseconds(10);\ndigitalWrite(${3:triggerPin}, LOW);\n${1:duration} = pulseIn(${4:echoPin}, HIGH);\n${2:distance} = ${1:duration} * 0.034 / 2;"
+},
+"eeprom": {
+  "prefix": "eeprom",
+  "body": "#include <EEPROM.h>\n\nEEPROM.${1:write|read}(${2:address}, ${3:value});"
+},
+"blink": {
+  "prefix": "blink",
+  "body": "void setup() {\n\tpinMode(LED_BUILTIN, OUTPUT);\n}\n\nvoid loop() {\n\tdigitalWrite(LED_BUILTIN, HIGH);\n\tdelay(1000);\n\tdigitalWrite(LED_BUILTIN, LOW);\n\tdelay(1000);\n}"
 }
