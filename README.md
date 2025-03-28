@@ -5,9 +5,10 @@ A powerful Vim configuration tailored for modern development workflows, featurin
 ## 🤓 Target audience:
 Lsp and snippets will be beneficial to:
 
-- C/Cpp coders
-- Python coders
-- Embedded systems developers (arduino, stm32 and esp32)
+- C/Cpp GIGACHADS
+- Pythonians
+- Rust maniacs
+- [arduino, stm32 and esp32] Tinkers
 
 ## ✨ Key Features
 - **Language Server Protocol (LSP)** support for Python, C/C++, Rust
