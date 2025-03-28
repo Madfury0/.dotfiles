@@ -135,15 +135,16 @@
 },
 
 
-
+{
   "esp_main": {
     "prefix": "esp_main",
-    "body": "#include \"freertos/FreeRTOS.h\"\n#include \"freertos/task.h\"\n#include \"esp_log.h\"\n\nvoid app_main() {\n\t${1:ESP_LOGI(\"TAG\", \"Hello from ESP-IDF!\");}\n\t$0\n}"
+    "body": "#include \"freertos/FreeRTOS.h\"\n#include \"freertos/task.h\"\n#include \"esp_log.h\"\n\nvoid app_main() {\n\t${1:ESP_LOGI(\"TAG\", \"Hello from ESP-IDF!\");}\n\n\t// Create FreeRTOS task\n\txTaskCreate(&${2:TaskFunction}, \"${3:TaskName}\", ${4:StackSize}, ${5:TaskParameters}, ${6:TaskPriority}, ${7:TaskHandle});\n\t$0\n}"
   },
   "esp_task": {
     "prefix": "esp_task",
-    "body": "void ${1:task_name}(void *pvParameters) {\n\twhile(1) {\n\t\t${2:// Task logic}\n\t\tvTaskDelay(${3:1000} / portTICK_PERIOD_MS);\n\t}\n}\n\nxTaskCreate(&${1:task_name}, \"${4:TaskName}\", ${5:2048}, NULL, ${6:5}, NULL);"
-  },
+    "body": "void ${1:TaskFunction}(void *pvParameters) {\n\twhile(1) {\n\t\t${2:// Task logic goes here}\n\t\tvTaskDelay(${3:DelayMs} / portTICK_PERIOD_MS);\n\t}\n}"
+  }
+},
   "esp_timer": {
     "prefix": "esp_timer",
     "body": "void ${1:timer_callback}(void* arg) {\n\t$0\n}\n\nesp_timer_create_args_t ${2:TimerArgs} = {\n\t.callback = &${1:timer_callback},\n\t${3:// Add other parameters}\n};\n\nesp_timer_handle_t ${4:TimerHandle};\nesp_timer_create(&${2:TimerArgs}, &${4:TimerHandle});\nesp_timer_start_periodic(${4:TimerHandle}, ${5:1000000});"
