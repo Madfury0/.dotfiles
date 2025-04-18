@@ -24,6 +24,8 @@ touch "$dir/c.json" "$dir/cpp.json" "$dir/python.json"
 # Install base dependencies
 sudo apt install -y zsh git vim build-essential python3 python3-pip ripgrep clang-format tmux clangd python3-venv pipx
 
+# sudo apt install gcc-arm-none-eabi
+
 # Install pylsp and all required tools
 pipx install "python-lsp-server[all]"
 pipx ensurepath
