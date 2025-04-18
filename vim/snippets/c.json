@@ -1,584 +1,372 @@
-snippet main "main" b
-#include <stdio.h>
+snippet app_main "main entry point" b
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
-int main() {
-	$0
-	return 0;
+void app_main(void) {
+    $0
 }
 endsnippet
 
-snippet for "for_loop" b
-for (int ${1:i} = 0; ${1:i} < ${2:10}; ${1:i}++) {
-	$0
+snippet xTask "Create FreeRTOS task" b
+xTaskCreate(
+    ${1:task_function},
+    "${2:TaskName}",
+    ${3:stack_size},
+    ${4:void*_param},
+    ${5: Priority},
+    ${6:*handle_t}
+);
+$0
+endsnippet
+
+snippet logi "ESP_LOGI with tag" b
+ESP_LOGI("${1:TAG}", "${2:message}");
+$0
+endsnippet
+
+snippet loge "ESP_LOGE with tag" b
+ESP_LOGE("${1:TAG}", "${2:message}");
+$0
+endsnippet
+
+snippet delay "vTaskDelay ms" b
+vTaskDelay(pdMS_TO_TICKS(${1:1000}));
+$0
+endsnippet
+
+snippet task "FreeRTOS task" b
+void ${1:task_name}(void *pvParameters) {
+    while(1) {
+        ${2:logic}
+        $0
+        
+        vTaskDelay(pdMS_TO_TICKS(${3:1000}));
+    }
 }
 endsnippet
 
-snippet while "while_loop" b
-while (${1:condition}) {
-	$0
+snippet err "ESP_ERROR_CHECK" b
+esp_err_t err = ${1:esp_function()};
+if (err != ESP_OK) {
+    ESP_LOGE("${2:TAG}", "${3:Operation failed}: %s", esp_err_to_name(err));
+    ${4:// Handle error - cleanup or restart}
 }
+$0
 endsnippet
 
-snippet if "if_else" b
-if (${1:condition}) {
-	$0
+snippet nvs "NVS initialization" b
+// Initialize Non-Volatile Storage (NVS)
+esp_err_t ret = nvs_flash_init();
+if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    ESP_LOGW("${1:TAG}", "NVS needs erase, reinitializing...");
+    ESP_ERROR_CHECK(nvs_flash_erase());
+    ret = nvs_flash_init();
+}
+ESP_ERROR_CHECK(ret);
+$0
+endsnippet
+
+snippet wifi "WiFi Station Initialization" b
+// Basic WiFi station initialization sequence
+ESP_ERROR_CHECK(esp_netif_init());                  // Initialize TCP/IP stack
+ESP_ERROR_CHECK(esp_event_loop_create_default());   // Create event loop
+esp_netif_t *sta_netif = esp_netif_create_default_wifi_sta();  // Create STA interface
+
+wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT(); // Default WiFi config
+ESP_ERROR_CHECK(esp_wifi_init(&cfg));               // Initialize WiFi driver
+$0
+endsnippet
+
+snippet gpio "GPIO Configuration" b
+// Configure GPIO ${1:num} as ${2|INPUT,OUTPUT,INPUT_PULLUP,INPUT_PULLDOWN|}
+gpio_config_t io_conf = {
+    .pin_bit_mask = (1ULL << $1),
+    .mode = GPIO_MODE_${2},
+    .pull_up_en = ${3|GPIO_PULLUP_DISABLE,GPIO_PULLUP_ENABLE|},
+    .pull_down_en = ${4|GPIO_PULLDOWN_DISABLE,GPIO_PULLDOWN_ENABLE|},
+    .intr_type = GPIO_INTR_DISABLE
+};
+ESP_ERROR_CHECK(gpio_config(&io_conf));
+$0
+endsnippet
+
+snippet timer "HW Timer Configuration" b
+// Create ${1:period_ms}ms periodic timer
+esp_timer_handle_t ${2:timer};
+const esp_timer_create_args_t ${2}_args = {
+    .callback = ${3:timer_callback},
+    .name = "${4:timer_task}"
+};
+ESP_ERROR_CHECK(esp_timer_create(&${2}_args, &${2}));
+ESP_ERROR_CHECK(esp_timer_start_periodic($2, ${1} * 1000));
+$0
+endsnippet
+
+snippet event "Event Handler Registration" b
+// Register event handler for ${1:EVENT_BASE}
+ESP_ERROR_CHECK(esp_event_handler_instance_register(
+    ${1},
+    ${2:EVENT_ID},
+    ${3:event_handler},
+    NULL,
+    ${4:NULL}
+));
+$0
+endsnippet
+
+snippet spiffs "SPIFFS Initialization" b
+// Mount SPIFFS filesystem
+esp_vfs_spiffs_conf_t conf = {
+    .base_path = "/spiffs",
+    .partition_label = NULL,
+    .max_files = ${1:5},
+    .format_if_mount_failed = ${2|true,false|}
+};
+ESP_ERROR_CHECK(esp_vfs_spiffs_register(&conf));
+$0
+endsnippet
+
+snippet http "HTTP Server Starter" b
+// Start HTTP server on port ${1:80}
+httpd_handle_t server = NULL;
+httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+config.server_port = $1;
+config.ctrl_port += $1;  // Unique control port
+
+if (httpd_start(&server, &config) == ESP_OK) {
+    httpd_register_uri_handlers(server, ${2:handlers});
+}
+$0
+endsnippet
+
+snippet ble "BLE GATT Server Setup" b
+// Initialize BLE controller and NimBLE stack
+esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+ESP_ERROR_CHECK(esp_bt_controller_init(&bt_cfg));
+ESP_ERROR_CHECK(esp_bt_controller_enable(ESP_BT_MODE_BLE));
+
+esp_bluedroid_config_t bluedroid_cfg = BT_BLUEDROID_INIT_CONFIG_DEFAULT();
+ESP_ERROR_CHECK(esp_bluedroid_init_with_cfg(&bluedroid_cfg));
+ESP_ERROR_CHECK(esp_bluedroid_enable());
+
+// Register BLE GATT service
+esp_ble_gatts_app_register(${1:APP_ID});
+$0
+endsnippet
+
+snippet retry "Retry Loop Pattern" b
+for(int ${1:retry} = 0; $1 < ${2:5}; $1++) {
+    esp_err_t err = ${3:operation()};
+    if(err == ESP_OK) break;
+    if($1 == $2-1) ESP_ERROR_CHECK(err);
+    vTaskDelay(pdMS_TO_TICKS(${4:200}));
+}
+$0
+endsnippet
+
+snippet i2c "I2C Master Initialization" b
+// Configure I2C master on port ${1|0,1|}
+i2c_config_t conf = {
+    .mode = I2C_MODE_MASTER,
+    .sda_io_num = ${2:GPIO_NUM_21},
+    .scl_io_num = ${3:GPIO_NUM_22},
+    .sda_pullup_en = GPIO_PULLUP_ENABLE,
+    .scl_pullup_en = GPIO_PULLUP_ENABLE,
+    .master.clk_speed = ${4:100000}
+};
+ESP_ERROR_CHECK(i2c_param_config($1, &conf));
+ESP_ERROR_CHECK(i2c_driver_install($1, conf.mode, 0, 0, 0));
+$0
+endsnippet
+
+snippet pm "Power Management Configuration" b
+// Configure CPU frequency (${1|80,160,240|} MHz
+esp_pm_config_t pm_config = {
+    .max_freq_mhz = $1,
+    .min_freq_mhz = $1,
+    .light_sleep_enable = ${2|false,true|}
+};
+ESP_ERROR_CHECK(esp_pm_configure(&pm_config));
+$0
+endsnippet
+
+snippet uart "UART Configuration" b
+// Setup UART ${1|0,1,2|} (TX: ${2:GPIO_NUM_1}, RX: ${3:GPIO_NUM_3})
+uart_config_t uart_config = {
+    .baud_rate = ${4:115200},
+    .data_bits = UART_DATA_8_BITS,
+    .parity = UART_PARITY_DISABLE,
+    .stop_bits = UART_STOP_BITS_1,
+    .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
+};
+ESP_ERROR_CHECK(uart_param_config($1, &uart_config));
+ESP_ERROR_CHECK(uart_set_pin($1, $2, $3, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+$0
+endsnippet
+
+snippet mqtt "MQTT Client Initialization" b
+// Configure MQTT client with URI ${1:mqtts://broker.example.com:8883}
+esp_mqtt_client_config_t mqtt_cfg = {
+    .broker = {
+        .address.uri = "$1",
+    },
+    .credentials = {
+        .username = "${2:user}",
+        .authentication.password = "${3:pass}"
+    },
+    .buffer = {
+        .size = ${4:2048},  // TX/RX buffer size in bytes
+        .out_size = ${5:1024} // Outgoing buffer size
+    }
+};
+esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
+ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, ${6:mqtt_event_handler}, NULL));
+ESP_ERROR_CHECK(esp_mqtt_client_start(client));
+$0
+endsnippet
+
+snippet spi "SPI Master Configuration" b
+// Configure SPI${1|2,3|} host (MISO: ${2:GPIO_NUM_19}, MOSI: ${3:GPIO_NUM_23}, SCLK: ${4:GPIO_NUM_18})
+spi_bus_config_t buscfg = {
+    .miso_io_num = $2,
+    .mosi_io_num = $3,
+    .sclk_io_num = $4,
+    .quadwp_io_num = -1,
+    .quadhd_io_num = -1,
+    .max_transfer_sz = ${5:4096}  // Max transfer size in bytes
+};
+
+spi_device_interface_config_t devcfg = {
+    .clock_speed_hz = ${6:1000000},  // Clock speed (1MHz typical)
+    .mode = ${7|0,1,2,3|},          // SPI mode (0-3)
+    .spics_io_num = ${8:GPIO_NUM_5}, // CS pin
+    .queue_size = ${9:7}            // Transaction queue size
+};
+
+ESP_ERROR_CHECK(spi_bus_initialize(SPI${1}_HOST, &buscfg, ${10|SPI_DMA_CH_AUTO,SPI_DMA_DISABLED|}));
+ESP_ERROR_CHECK(spi_bus_add_device(SPI${1}_HOST, &devcfg, &${11:spi_device}));
+$0
+endsnippet
+
+snippet adc "ADC Configuration with Attenuation" b
+// Configure ADC${1|1,2|} Channel ${2:0} (GPIO ${3:36})
+adc1_config_width(ADC_WIDTH_BIT_${4|12,11,10,9|});  // Resolution
+adc1_config_channel_atten(ADC1_CHANNEL_$2, ADC_ATTEN_DB_${5|0,2,6,11|}); // 0-3.1V, 0-2.2V, 0-1.5V, 0-1.1V
+
+// Characterize ADC curve for better accuracy
+esp_adc_cal_characteristics_t *adc_chars = calloc(1, sizeof(esp_adc_cal_characteristics_t));
+esp_adc_cal_characterize(ADC_UNIT_$1, ADC_ATTEN_DB_$5, ADC_WIDTH_BIT_$4, ${6:1100}, adc_chars);
+$0
+endsnippet
+
+snippet pwm "LEDC PWM Configuration" b
+// Configure PWM channel (${1:0-7}) on GPIO ${2:18} @ ${3:5000}Hz
+const ledc_timer_config_t timer_cfg = {
+    .speed_mode = LEDC_${4|LOW_SPEED_MODE,HIGH_SPEED_MODE|},
+    .duty_resolution = LEDC_TIMER_${5|13,12,11,10,9,8,7,6|}_BIT, // Resolution (13-bit = 8192 steps)
+    .timer_num = LEDC_TIMER_${6|0,1,2,3|},
+    .freq_hz = $3,
+    .clk_cfg = LEDC_AUTO_CLK
+};
+ESP_ERROR_CHECK(ledc_timer_config(&timer_cfg));
+
+const ledc_channel_config_t channel_cfg = {
+    .gpio_num = $2,
+    .speed_mode = $4,
+    .channel = LEDC_CHANNEL_$1,
+    .timer_sel = LEDC_TIMER_$6,
+    .duty = ${7:4096},  // 50% duty for 13-bit (8192/2)
+    .hpoint = 0
+};
+ESP_ERROR_CHECK(ledc_channel_config(&channel_cfg));
+$0
+endsnippet
+
+snippet deep_sleep "Deep Sleep with Wakeup" b
+// Configure deep sleep wakeup source (${1|TIMER,TOUCH,EXT0,EXT1,ULP|})
+esp_sleep_enable_${1}_wakeup(${2:/* Args */});
+
+// For timer wakeup (in microseconds):
+// esp_sleep_enable_timer_wakeup(${2:3000000}); // 3 seconds
+
+// For EXT0 (GPIO) wakeup:
+// esp_sleep_enable_ext0_wakeup(${2:GPIO_NUM_0}, ${3:0}); // GPIO, Level
+
+ESP_LOGI("${4:TAG}", "Entering deep sleep");
+esp_deep_sleep_start();
+$0
+endsnippet
+
+snippet ota "OTA Update Setup" b
+// Configure OTA update server parameters
+esp_http_client_config_t config = {
+    .url = "${1:https://firmware.example.com/update.bin}",
+    .cert_pem = (const char *)${2:server_cert_pem_start},
+    .timeout_ms = ${3:5000},
+    .keep_alive_enable = true,
+};
+
+esp_https_ota_config_t ota_config = {
+    .http_config = &config,
+    .partial_http_download = ${4|false,true|}
+};
+
+esp_https_ota_handle_t ota_handle = NULL;
+ESP_ERROR_CHECK(esp_https_ota_begin(&ota_config, &ota_handle));
+$0
+endsnippet
+
+snippet mutex "Thread-Safe Mutex Pattern" b
+static SemaphoreHandle_t ${1:xMutex} = NULL;
+
+// Initialize mutex in app_main
+$1 = xSemaphoreCreateMutex();
+
+// Usage pattern:
+if(xSemaphoreTake($1, pdMS_TO_TICKS(${2:1000})) == pdTRUE) {
+    // Critical section
+    $0
+    xSemaphoreGive($1);
 } else {
-	
+    ESP_LOGE("${3:TAG}", "Mutex timeout");
 }
 endsnippet
 
-snippet printf "printf" b
-printf("${1:Hello, World!}\\n");
-endsnippet
+snippet event_group "Event Group Synchronization" b
+static EventGroupHandle_t ${1:xEventGroup} = NULL;
+#define ${2:EVENT_BIT_0} (1 << 0)
 
-snippet struct "struct" b
-typedef struct {
-	${1:int} ${2:member};
-} ${3:struct_name}_t;
-endsnippet
+// Create event group in app_main
+$1 = xEventGroupCreate();
 
-snippet switch "switch" b
-switch (${1:variable}) {
-	case ${2:value}:
-		$0
-		break;
-	default:
-		break;
-}
-endsnippet
+// Set bits from ISR:
+BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+xEventGroupSetBitsFromISR($1, $2, &xHigherPriorityTaskWoken);
 
-snippet func "function" b
-${1:void} ${2:function_name}(${3:params}) {
-	$0
-}
-endsnippet
-
-snippet do "do_while" b
-do {
-	$0
-} while (${1:condition});
-endsnippet
-
-snippet include "header_include" b
-#ifndef ${1:HEADER_H}
-#define ${1:HEADER_H}
-
+// Wait for bits in task:
+EventBits_t uxBits = xEventGroupWaitBits(
+    $1,        // Event group
+    $2,        // Bits to wait for
+    pdTRUE,    // Clear on exit
+    pdFALSE,   // Wait for all bits
+    portMAX_DELAY
+);
 $0
-
-#endif /* ${1:HEADER_H} */
 endsnippet
 
-snippet array "array" b
-${1:int} ${2:array}[${3:10}];
-endsnippet
+snippet sntp "SNTP Time Synchronization" b
+// Configure SNTP with ${1|0,1,2,3|} servers
+sntp_setoperatingmode(SNTP_OPMODE_POLL);
+sntp_setservername(0, "${2:pool.ntp.org}");
+sntp_setservername(1, "${3:time.nist.gov}");
+sntp_init();
 
-snippet ptr "pointer" b
-${1:int} *${2:ptr} = &${3:variable};
-endsnippet
-
-snippet malloc "malloc" b
-${1:int} *${2:ptr} = (${1:int} *)malloc(${3:size} * sizeof(${1:int}));
-if (${2:ptr} == NULL) {
-	printf("Memory allocation failed!\\n");
-	exit(1);
+// Wait for time sync (timeout: ${4:10} seconds)
+int retry = 0;
+while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < ${4}0) {
+    ESP_LOGI("${5:TAG}", "Waiting for system time sync...");
+    vTaskDelay(100 / portTICK_PERIOD_MS);
 }
-endsnippet
-
-snippet free "free" b
-free(${1:ptr});
-${1:ptr} = NULL;
-endsnippet
-
-snippet fopen "fopen" b
-FILE *${1:file} = fopen("${2:filename}", "${3:r}");
-if (${1:file} == NULL) {
-	printf("Error opening file!\\n");
-	exit(1);
-}
-endsnippet
-
-snippet fclose "fclose" b
-fclose(${1:file});
-endsnippet
-
-snippet fprintf "fprintf" b
-fprintf(${1:file}, "${2:format}\\n", ${3:values});
-endsnippet
-
-snippet fscanf "fscanf" b
-fscanf(${1:file}, "${2:format}", &${3:variable});
-endsnippet
-
-snippet memcpy "memcpy" b
-memcpy(${1:dest}, ${2:src}, ${3:size} * sizeof(${4:type}));
-endsnippet
-
-snippet memset "memset" b
-memset(${1:buffer}, ${2:0}, ${3:size} * sizeof(${4:type}));
-endsnippet
-
-snippet strcmp "strcmp" b
-if (strcmp(${1:str1}, ${2:str2}) == 0) {
-	$0
-}
-endsnippet
-
-snippet strcpy "strcpy" b
-strcpy(${1:dest}, ${2:src});
-endsnippet
-
-snippet strlen "strlen" b
-size_t ${1:length} = strlen(${2:string});
-endsnippet
-
-snippet struct_init "struct_init" b
-${1:struct_name}_t ${2:instance} = { .${3:member} = ${4:value} };
-endsnippet
-
-snippet enum "typedef_enum" b
-typedef enum {
-	${1:VALUE1},
-	${2:VALUE2},
-	${3:VALUE3}
-} ${4:enum_name}_t;
-endsnippet
-
-snippet define "define" b
-#define ${1:MACRO} ${2:value}
-endsnippet
-
-snippet exit "exit" b
-exit(${1:EXIT_SUCCESS});
-endsnippet
-
-snippet assert "assert" b
-#include <assert.h>
-assert(${1:condition});
-endsnippet
-
-snippet qsort "qsort" b
-qsort(${1:array}, ${2:size}, sizeof(${3:type}), ${4:compare_function});
-endsnippet
-
-snippet bsearch "bsearch" b
-void *${1:result} = bsearch(&${2:key}, ${3:array}, ${4:size}, sizeof(${5:type}), ${6:compare_function});
-endsnippet
-
-snippet thread "thread" b
-#include <pthread.h>
-
-pthread_t ${1:thread};
-pthread_create(&${1:thread}, NULL, ${2:function}, NULL);
-endsnippet
-
-snippet mutex "mutex" b
-#include <pthread.h>
-
-pthread_mutex_t ${1:mutex} = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_lock(&${1:mutex});
 $0
-pthread_mutex_unlock(&${1:mutex});
 endsnippet
-
-snippet signal "signal" b
-#include <signal.h>
-
-signal(${1:SIGNAL}, ${2:handler_function});
-endsnippet
-
-
-
-
-{
-  "esp_main": {
-    "prefix": "esp_main",
-    "body": "#include \"freertos/FreeRTOS.h\"\n#include \"freertos/task.h\"\n#include \"esp_log.h\"\n\nvoid app_main() {\n\t${1:ESP_LOGI(\"TAG\", \"Hello from ESP-IDF!\");}\n\n\t// Create FreeRTOS task\n\txTaskCreate(&${2:TaskFunction}, \"${3:TaskName}\", ${4:StackSize}, ${5:TaskParameters}, ${6:TaskPriority}, ${7:TaskHandle});\n\t$0\n}"
-  },
-  "esp_task": {
-    "prefix": "esp_task",
-    "body": "void ${1:TaskFunction}(void *pvParameters) {\n\twhile(1) {\n\t\t${2:// Task logic goes here}\n\t\tvTaskDelay(${3:DelayMs} / portTICK_PERIOD_MS);\n\t}\n}"
-  }
-},
-  "esp_timer": {
-    "prefix": "esp_timer",
-    "body": "void ${1:timer_callback}(void* arg) {\n\t$0\n}\n\nesp_timer_create_args_t ${2:TimerArgs} = {\n\t.callback = &${1:timer_callback},\n\t${3:// Add other parameters}\n};\n\nesp_timer_handle_t ${4:TimerHandle};\nesp_timer_create(&${2:TimerArgs}, &${4:TimerHandle});\nesp_timer_start_periodic(${4:TimerHandle}, ${5:1000000});"
-  },
-  "esp_gpio": {
-    "prefix": "esp_gpio",
-    "body": "gpio_config_t ${1:io_conf} = {\n\t.pin_bit_mask = (1ULL << ${2:GPIO_NUM}),\n\t.mode = ${3:GPIO_MODE_OUTPUT},\n\t.pull_up_en = ${4:GPIO_PULLUP_DISABLE},\n\t.pull_down_en = ${5:GPIO_PULLDOWN_DISABLE},\n\t.intr_type = ${6:GPIO_INTR_DISABLE}\n};\ngpio_config(&${1:io_conf});"
-  },
-  "esp_wifi": {
-    "prefix": "esp_wifi",
-    "body": "wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();\nESP_ERROR_CHECK(esp_wifi_init(&cfg));\nESP_ERROR_CHECK(esp_wifi_set_mode(${1:WIFI_MODE_STA}));\nESP_ERROR_CHECK(esp_wifi_start());"
-  },
-  "esp_event": {
-    "prefix": "esp_event",
-    "body": "ESP_ERROR_CHECK(esp_event_handler_instance_register(${1:WIFI_EVENT},\n\t\t\t\t\t\t\t\t\t\t${2:ESP_EVENT_ANY_ID},\n\t\t\t\t\t\t\t\t\t\t${3:event_handler},\n\t\t\t\t\t\t\t\t\t\tNULL,\n\t\t\t\t\t\t\t\t\t\tNULL));"
-  },
-  "esp_spiffs": {
-    "prefix": "esp_spiffs",
-    "body": "esp_vfs_spiffs_conf_t conf = {\n\t.base_path = \"/spiffs\",\n\t.partition_label = NULL,\n\t.max_files = ${1:5},\n\t.format_if_mount_failed = ${2:true}\n};\nESP_ERROR_CHECK(esp_vfs_spiffs_register(&conf));"
-  },
-  "esp_log": {
-    "prefix": "esp_log",
-    "body": "ESP_LOGI(\"${1:TAG}\", \"${2:Message}\");"
-  }
-},
-"esp_http_client": {
-  "prefix": "esp_http",
-  "body": "esp_http_client_config_t config = {\n\t.url = \"${1:http://example.com}\",\n\t.event_handler = ${2:_http_event_handler},\n};\nesp_http_client_handle_t client = esp_http_client_init(&config);\nESP_ERROR_CHECK(esp_http_client_perform(client));\nESP_ERROR_CHECK(esp_http_client_cleanup(client));"
-},
-"esp_mqtt": {
-  "prefix": "esp_mqtt",
-  "body": "esp_mqtt_client_config_t mqtt_cfg = {\n\t.broker.address.uri = \"${1:mqtt://mqtt.eclipse.org}\",\n};\nesp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);\nESP_ERROR_CHECK(esp_mqtt_client_start(client));"
-},
-"esp_adc": {
-  "prefix": "esp_adc",
-  "body": "adc1_config_width(${1:ADC_WIDTH_BIT_12});\nadc1_config_channel_atten(${2:ADC1_CHANNEL_0}, ${3:ADC_ATTEN_DB_11});\nint raw = adc1_get_raw(${2:ADC1_CHANNEL_0});"
-},
-"esp_i2c": {
-  "prefix": "esp_i2c",
-  "body": "i2c_config_t conf = {\n\t.mode = I2C_MODE_MASTER,\n\t.sda_io_num = ${1:GPIO_NUM_21},\n\t.scl_io_num = ${2:GPIO_NUM_22},\n\t.sda_pullup_en = GPIO_PULLUP_ENABLE,\n\t.scl_pullup_en = GPIO_PULLUP_ENABLE,\n\t.master.clk_speed = ${3:100000}\n};\ni2c_param_config(I2C_NUM_0, &conf);\ni2c_driver_install(I2C_NUM_0, I2C_MODE_MASTER, 0, 0, 0);"
-},
-"esp_spi": {
-  "prefix": "esp_spi",
-  "body": "spi_bus_config_t buscfg = {\n\t.miso_io_num = ${1:GPIO_NUM_19},\n\t.mosi_io_num = ${2:GPIO_NUM_23},\n\t.sclk_io_num = ${3:GPIO_NUM_18},\n\t.quadwp_io_num = -1,\n\t.quadhd_io_num = -1\n};\nspi_device_interface_config_t devcfg = {\n\t.clock_speed_hz = ${4:1000000},\n\t.mode = ${5:0},\n\t.spics_io_num = ${6:GPIO_NUM_5},\n\t.queue_size = ${7:7}\n};\nspi_bus_initialize(SPI_HOST, &buscfg, SPI_DMA_CH_AUTO);\nspi_bus_add_device(SPI_HOST, &devcfg, &spi);"
-},
-"esp_pwm": {
-  "prefix": "esp_pwm",
-  "body": "ledc_timer_config_t timer_cfg = {\n\t.speed_mode = LEDC_HIGH_SPEED_MODE,\n\t.duty_resolution = LEDC_TIMER_${1:13}_BIT,\n\t.timer_num = LEDC_TIMER_0,\n\t.freq_hz = ${2:5000}\n};\nledc_channel_config_t channel_cfg = {\n\t.gpio_num = ${3:GPIO_NUM_18},\n\t.speed_mode = LEDC_HIGH_SPEED_MODE,\n\t.channel = LEDC_CHANNEL_0,\n\t.timer_sel = LEDC_TIMER_0,\n\t.duty = ${4:4096}\n};\nledc_timer_config(&timer_cfg);\nledc_channel_config(&channel_cfg);"
-},
-"esp_nvs": {
-  "prefix": "esp_nvs",
-  "body": "nvs_handle_t nvs_handle;\nESP_ERROR_CHECK(nvs_open(\"${1:storage}\", NVS_READWRITE, &nvs_handle));\nESP_ERROR_CHECK(nvs_set_i32(nvs_handle, \"${2:key}\", ${3:value}));\nESP_ERROR_CHECK(nvs_commit(nvs_handle));\nnvs_close(nvs_handle);"
-},
-"esp_uart": {
-  "prefix": "esp_uart",
-  "body": "uart_config_t uart_config = {\n\t.baud_rate = ${1:115200},\n\t.data_bits = UART_DATA_8_BITS,\n\t.parity = UART_PARITY_DISABLE,\n\t.stop_bits = UART_STOP_BITS_1,\n\t.flow_ctrl = UART_HW_FLOWCTRL_DISABLE\n};\nuart_param_config(UART_NUM_1, &uart_config);\nuart_set_pin(UART_NUM_1, ${2:GPIO_NUM_17}, ${3:GPIO_NUM_16}, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);"
-},
-"esp_ble": {
-  "prefix": "esp_ble",
-  "body": "esp_ble_gap_register_callback(esp_gap_cb);\nesp_ble_gatts_register_callback(esp_gatts_cb);\nesp_ble_gatts_app_register(${1:ESP_ID_APP});\nesp_ble_gap_set_device_name(\"${2:ESP32_DEVICE}\");"
-},
-"esp_ota": {
-  "prefix": "esp_ota",
-  "body": "esp_ota_handle_t update_handle;\nconst esp_partition_t *update_partition = esp_ota_get_next_update_partition(NULL);\nESP_ERROR_CHECK(esp_ota_begin(update_partition, OTA_SIZE_UNKNOWN, &update_handle));\nESP_ERROR_CHECK(esp_ota_write(update_handle, (const void *)${1:data}, ${2:length}));\nESP_ERROR_CHECK(esp_ota_end(update_handle));"
-},
-"esp_deepsleep": {
-  "prefix": "esp_deepsleep",
-  "body": "esp_sleep_enable_timer_wakeup(${1:5} * 1000000);\nesp_deep_sleep_start();"
-},
-"esp_touch": {
-  "prefix": "esp_touch",
-  "body": "touch_pad_init();\ntouch_pad_config(${1:TOUCH_PAD_NUM0}, ${2:0}/* Threshold */);\ntouch_pad_read(${1:TOUCH_PAD_NUM0}, &${3:raw_value});"
-},
-"esp_nvs_read": {
-  "prefix": "esp_nvs_read",
-  "body": "nvs_handle_t nvs_handle;\nint32_t ${1:value} = 0;\nESP_ERROR_CHECK(nvs_open(\"${2:storage}\", NVS_READONLY, &nvs_handle));\nESP_ERROR_CHECK(nvs_get_i32(nvs_handle, \"${3:key}\", &${1:value}));\nnvs_close(nvs_handle);"
-},
-"esp_isr": {
-  "prefix": "esp_isr",
-  "body": "void ${1:isr_handler}(void* args) {\n\t$0\n}\n\ngpio_install_isr_service(${2:0});\ngpio_isr_handler_add(${3:GPIO_NUM}, ${1:isr_handler}, NULL);"
-},
-"esp_sntp": {
-  "prefix": "esp_sntp",
-  "body": "sntp_setoperatingmode(SNTP_OPMODE_POLL);\nsntp_setservername(0, \"${1:pool.ntp.org}\");\nsntp_init();\n// Wait for time sync (implement timeout logic in real code)"
-},
-"esp_fatfs": {
-  "prefix": "esp_fatfs",
-  "body": "esp_vfs_fat_mount_config_t mount_config = {\n\t.max_files = ${1:4},\n\t.format_if_mount_failed = ${2:true}\n};\nwl_handle_t ${3:wl_handle};\nESP_ERROR_CHECK(esp_vfs_fat_spiflash_mount(\"/fatfs\", \"storage\", &mount_config, &${3:wl_handle}));"
-},
-"esp_event_loop": {
-  "prefix": "esp_event_loop",
-  "body": "esp_event_loop_args_t loop_args = {\n\t.queue_size = ${1:10},\n\t.task_name = \"event_loop_task\",\n\t.task_priority = ${2:5},\n\t.task_stack_size = ${3:4096}\n};\nesp_event_loop_handle_t ${4:event_loop};\nESP_ERROR_CHECK(esp_event_loop_create(&loop_args, &${4:event_loop}));"
-},
-"esp_gpio_isr": {
-  "prefix": "esp_gpio_isr",
-  "body": "gpio_set_intr_type(${1:GPIO_NUM}, ${2:GPIO_INTR_NEGEDGE});\ngpio_intr_enable(${1:GPIO_NUM});"
-},
-"esp_rtc": {
-  "prefix": "esp_rtc",
-  "body": "struct timeval tv_now;\ngettimeofday(&tv_now, NULL);\nstruct tm timeinfo;\nlocaltime_r(&tv_now.tv_sec, &timeinfo);"
-},
-"esp_aes": {
-  "prefix": "esp_aes",
-  "body": "esp_aes_context ctx;\nesp_aes_init(&ctx);\nesp_aes_setkey(&ctx, ${1:key}, ${2:256});\nesp_aes_crypt_ecb(&ctx, ESP_AES_ENCRYPT, ${3:input}, ${4:output});"
-},
-"esp_sha": {
-  "prefix": "esp_sha",
-  "body": "unsigned char ${1:output}[32];\nesp_sha(SHA2_256, ${2:input}, ${3:len}, ${1:output});"
-},
-"esp_watchdog": {
-  "prefix": "esp_watchdog",
-  "body": "esp_task_wdt_init(${1:5}, ${2:true});\nesp_task_wdt_add(NULL);"
-},
-"esp_partition": {
-  "prefix": "esp_partition",
-  "body": "const esp_partition_t* ${1:partition} = esp_partition_find_first(\n\t${2:ESP_PARTITION_TYPE_DATA},\n\t${3:ESP_PARTITION_SUBTYPE_ANY},\n\t\"${4:storage}\");"
-},
-"esp_can": {
-  "prefix": "esp_can",
-  "body": "twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(${1:GPIO_NUM_21}, ${2:GPIO_NUM_22}, TWAI_MODE_NORMAL);\ntwai_timing_config_t t_config = TWAI_TIMING_CONFIG_${3:250}KBITS();\ntwai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();\ntwai_driver_install(&g_config, &t_config, &f_config);\ntwai_start();"
-},
-"esp_ethernet": {
-  "prefix": "esp_ethernet",
-  "body": "eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();\neth_phy_config_t phy_config = ETH_PHY_DEFAULT_CONFIG();\nphy_config.phy_addr = ${1:1};\nphy_config.reset_gpio_num = ${2:GPIO_NUM_5};\nesp_eth_mac_t *mac = esp_eth_mac_new_esp32(&mac_config);\nesp_eth_phy_t *phy = esp_eth_phy_new_lan87xx(&phy_config);\nesp_eth_config_t config = ETH_DEFAULT_CONFIG(mac, phy);\nesp_eth_handle_t eth_handle = NULL;\nesp_eth_driver_install(&config, &eth_handle);"
-},
-
-
-{
-  "stm32_main": {
-    "prefix": "stm32_main",
-    "body": [
-      "#include \"main.h\"",
-      "#include \"stm32f4xx_hal.h\"\n",
-      "int main(void) {",
-      "\tHAL_Init();",
-      "\tSystemClock_Config();",
-      "\tMX_GPIO_Init();",
-      "\tMX_USART2_UART_Init();",
-      "\t// Add other peripherals init\n",
-      "\twhile (1) {",
-      "\t\t$0",
-      "\t}",
-      "}"
-    ]
-  },
-  "stm32_gpio_write": {
-    "prefix": "stm32_gpio_write",
-    "body": "HAL_GPIO_WritePin(${1:GPIOA}, ${2:GPIO_PIN_5}, ${3:GPIO_PIN_SET});"
-  },
-  "stm32_gpio_read": {
-    "prefix": "stm32_gpio_read",
-    "body": "GPIO_PinState ${1:state} = HAL_GPIO_ReadPin(${2:GPIOB}, ${3:GPIO_PIN_0});"
-  },
-  "stm32_uart_tx": {
-    "prefix": "stm32_uart_tx",
-    "body": [
-      "HAL_UART_Transmit(&${1:huart2}, (uint8_t *)${2:\"Hello\\r\\n\"}, sizeof(${2}), ${3:100});"
-    ]
-  },
-  "stm32_uart_rx": {
-    "prefix": "stm32_uart_rx",
-    "body": [
-      "uint8_t ${1:rx_data}[${2:10}];",
-      "HAL_UART_Receive(&${3:huart2}, ${1}, ${2}, ${4:100});"
-    ]
-  },
-  "stm32_i2c": {
-    "prefix": "stm32_i2c",
-    "body": [
-      "HAL_I2C_Mem_Write(&${1:hi2c1}, ${2:DEV_ADDR}, ${3:REG_ADDR}, ${4:I2C_MEMADD_SIZE_8BIT}, ${5:data}, ${6:size}, ${7:100});"
-    ]
-  },
-  "stm32_spi": {
-    "prefix": "stm32_spi",
-    "body": [
-      "HAL_SPI_Transmit(&${1:hspi1}, ${2:data}, ${3:size}, ${4:100});"
-    ]
-  },
-  "stm32_pwm": {
-    "prefix": "stm32_pwm",
-    "body": [
-      "HAL_TIM_PWM_Start(&${1:htim2}, ${2:TIM_CHANNEL_1});",
-      "__HAL_TIM_SET_COMPARE(&${1}, ${2}, ${3:duty_cycle});"
-    ]
-  },
-  "stm32_adc": {
-    "prefix": "stm32_adc",
-    "body": [
-      "HAL_ADC_Start(&${1:hadc1});",
-      "if (HAL_ADC_PollForConversion(&${1}, ${2:100}) == HAL_OK) {",
-      "\tuint32_t ${3:value} = HAL_ADC_GetValue(&${1});",
-      "}"
-    ]
-  },
-  "stm32_interrupt": {
-    "prefix": "stm32_interrupt",
-    "body": [
-      "HAL_NVIC_SetPriority(${1:EXTI0_IRQn}, ${2:0}, ${3:0});",
-      "HAL_NVIC_EnableIRQ(${1});"
-    ]
-  },
-  "stm32_dma": {
-    "prefix": "stm32_dma",
-    "body": [
-      "HAL_${1:UART}_Transmit_DMA(&${2:huart2}, ${3:data}, ${4:size});"
-    ]
-  },
-  "stm32_timer": {
-    "prefix": "stm32_timer",
-    "body": [
-      "HAL_TIM_Base_Start_IT(&${1:htim3});"
-    ]
-  },
-  "stm32_rtc": {
-    "prefix": "stm32_rtc",
-    "body": [
-      "RTC_TimeTypeDef ${1:sTime};",
-      "HAL_RTC_GetTime(&${2:hrtc}, &${1}, RTC_FORMAT_BIN);"
-    ]
-  }
-},
-{
-  "stm32_clock_config": {
-    "prefix": "stm32_clock",
-    "body": [
-      "void SystemClock_Config(void) {",
-      "\tRCC_OscInitTypeDef RCC_OscInitStruct = {0};",
-      "\tRCC_ClkInitTypeDef RCC_ClkInitStruct = {0};",
-      "\t",
-      "\t// Configure main internal regulator output voltage",
-      "\t__HAL_RCC_PWR_CLK_ENABLE();",
-      "\t__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE${1:1});",
-      "\t",
-      "\t// Initialize oscillator settings",
-      "\tRCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_${2:HSE};",
-      "\tRCC_OscInitStruct.${2:HSE}.State = RCC_HSE_${3:ON};",
-      "\tHAL_RCC_OscConfig(&RCC_OscInitStruct);",
-      "\t",
-      "\t// Initialize CPU, AHB, APB clocks",
-      "\tRCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK",
-      "\t\t|RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;",
-      "\tRCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_${4:PLLCLK};",
-      "\tRCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV${5:1};",
-      "\tRCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV${6:4};",
-      "\tRCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV${7:2};",
-      "\tHAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_${8:5});",
-      "}"
-    ]
-  },
-  "stm32_exti": {
-    "prefix": "stm32_exti",
-    "body": [
-      "HAL_GPIO_Init(${1:GPIOA}, &(GPIO_InitTypeDef){",
-      "\t.Pin = ${2:GPIO_PIN_0},",
-      "\t.Mode = GPIO_MODE_IT_${3:RISING},",
-      "\t.Pull = GPIO_${4:PULLUP},",
-      "\t.Speed = GPIO_SPEED_FREQ_${5:HIGH}",
-      "});"
-    ]
-  },
-  "stm32_dma_rx": {
-    "prefix": "stm32_dma_rx",
-    "body": [
-      "HAL_${1:UART}_Receive_DMA(&${2:huart2}, ${3:rx_buffer}, ${4:BUFFER_SIZE});"
-    ]
-  },
-  "stm32_adc_dma": {
-    "prefix": "stm32_adc_dma",
-    "body": [
-      "HAL_ADC_Start_DMA(&${1:hadc1}, (uint32_t*)${2:adc_buffer}, ${3:BUFFER_SIZE});"
-    ]
-  },
-  "stm32_low_power": {
-    "prefix": "stm32_low_power",
-    "body": [
-      "HAL_PWR_Enter${1:SLEEP}Mode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_${2:WFI});"
-    ]
-  },
-  "stm32_timer_ic": {
-    "prefix": "stm32_timer_ic",
-    "body": [
-      "HAL_TIM_IC_Start_IT(&${1:htim3}, TIM_CHANNEL_${2:1});"
-    ]
-  },
-  "stm32_iwdg": {
-    "prefix": "stm32_iwdg",
-    "body": [
-      "HAL_IWDG_Init(&(IWDG_HandleTypeDef){",
-      "\t.Instance = IWDG,",
-      "\t.Init = {",
-      "\t\t.Prescaler = IWDG_PRESCALER_${1:256},",
-      "\t\t.Reload = ${2:4095}",
-      "\t}",
-      "});\nHAL_IWDG_Refresh(&hiwdg);"
-    ]
-  },
-  "stm32_crc": {
-    "prefix": "stm32_crc",
-    "body": [
-      "${1:uint32_t} crc = HAL_CRC_Calculate(&${2:hcrc}, ${3:data}, ${4:length});"
-    ]
-  },
-  "stm32_flash": {
-    "prefix": "stm32_flash",
-    "body": [
-      "HAL_FLASH_Unlock();",
-      "FLASH_EraseInitTypeDef erase = {",
-      "\t.TypeErase = FLASH_TYPEERASE_${1:SECTORS},",
-      "\t.Sector = FLASH_SECTOR_${2:5},",
-      "\t.NbSectors = ${3:1},",
-      "\t.VoltageRange = FLASH_VOLTAGE_RANGE_${4:3}",
-      "};",
-      "uint32_t sector_error = 0;",
-      "HAL_FLASHEx_Erase(&erase, &sector_error);",
-      "HAL_FLASH_Program(FLASH_TYPEPROGRAM_${5:WORD}, ${6:address}, ${7:data});",
-      "HAL_FLASH_Lock();"
-    ]
-  },
-  "stm32_i2s": {
-    "prefix": "stm32_i2s",
-    "body": [
-      "HAL_I2S_Transmit(&${1:hi2s3}, (uint16_t *)${2:pData}, ${3:size}, ${4:100});"
-    ]
-  },
-  "stm32_can": {
-    "prefix": "stm32_can",
-    "body": [
-      "CAN_TxHeaderTypeDef tx_header = {",
-      "\t.StdId = ${1:0x123},",
-      "\t.ExtId = ${2:0x00},",
-      "\t.IDE = CAN_ID_${3:STD},",
-      "\t.RTR = CAN_RTR_${4:DATA},",
-      "\t.DLC = ${5:8}",
-      "};",
-      "HAL_CAN_AddTxMessage(&${6:hcan1}, &tx_header, ${7:data}, &tx_mailbox);"
-    ]
-  },
-  "stm32_usb": {
-    "prefix": "stm32_usb",
-    "body": [
-      "USBD_Start(&${1:hUsbDeviceFS});"
-    ]
-  },
-  "stm32_freertos": {
-    "prefix": "stm32_freertos",
-    "body": [
-      "osThreadNew(${1:thread_function}, NULL, &${2:thread_attributes});"
-    ]
-  },
-  "stm32_periph_deinit": {
-    "prefix": "stm32_deinit",
-    "body": [
-      "HAL_${1:UART}_DeInit(&${2:huart2});"
-    ]
-  },
-  "stm32_assert": {
-    "prefix": "stm32_assert",
-    "body": [
-      "void assert_failed(uint8_t *file, uint32_t line) {",
-      "\twhile(1) {",
-      "\t\t// Implement custom assert behavior",
-      "\t}",
-      "}"
-    ]
-  },
-  "stm32_systick": {
-    "prefix": "stm32_delay",
-    "body": [
-      "HAL_Delay(${1:100});"
-    ]
-  },
-  "stm32_adc_multichannel": {
-    "prefix": "stm32_adc_multi",
-    "body": [
-      "ADC_ChannelConfTypeDef sConfig = {",
-      "\t.Channel = ADC_CHANNEL_${1:0},",
-      "\t.Rank = ${2:1},",
-      "\t.SamplingTime = ADC_SAMPLETIME_${3:480CYCLES}",
-      "};",
-      "HAL_ADC_ConfigChannel(&${4:hadc1}, &sConfig);"
-    ]
-  }
-}
